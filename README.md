@@ -65,6 +65,8 @@ $ git checkout master
  - Mockito JUnitTest (for testing)
  - Springfox Swagger 2 (for Doc API)
  - Docker
+ - Example Demo API - CAN REMOVE
+ - Example UserService test cases of Demo API - CAN REMOVE
 ````
 
 3. Project structure  
@@ -85,8 +87,11 @@ $ git checkout master
 │   │  │     ├── exceptions                      # Contain all project custom exception(s)
 │   │  │     ├── utils                           # Contain all project utilitiy(s)
 │   │  │     ├── swagger                         # Contain all swagger model(s)
+│   │  │     │  ├── base
+│   │  │     │  └── demo   (REMOVEABLE)
+│   │  │     │ 
 │   │  │     └── modules                         # (Core) Contain all project modules core bussiness source codes
-│   │  │        └── demo                          # Directory is named by project module name
+│   │  │        └── demo  (REMOVEABLE)            # Directory is named by project module name
 │   │  │           ├── controllers                 # Contain all module's Spring REST Controller(s)     
 │   │  │           ├── repositories                # Contain all module's Spring Repository(s) (ex: JPARepository, CrudRepository,...) 
 │   │  │           ├── services                    # Contain all module's bussiness service(s)
@@ -105,7 +110,7 @@ $ git checkout master
 │   └── test/                                                               
 │      └── java/                              
 │         └── com/spring/baseproject/           # Project unit test directory          
-│            └── demo                            # Directory is named by project module name                         
+│            └── demo   (REMOVABLE)              # Directory is named by project module name                         
 │               ├── controllers                   # Contain all unit test(s) for modules's controllers    
 │               ├── repositories                  # Contain all unit test(s) for modules's repositories 
 │               └── services                      # Contain all unit test(s) for modules's services 
