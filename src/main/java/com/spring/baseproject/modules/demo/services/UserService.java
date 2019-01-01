@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DemoService {
+public class UserService {
     @Autowired
     private UserRepository userRepository;
 
@@ -42,8 +42,8 @@ public class DemoService {
     public BaseResponse updateUser(String username, UpdateUserDto updateUserDto) {
         //TODO business logic here
         User user = userRepository.getUserByUsername(username);
-        if (user != null) {
-            return new BaseResponse(ResponseValue.USERNAME_EXISTS);
+        if (user == null) {
+            return new BaseResponse(ResponseValue.USER_NOT_FOUND);
         }
         user.setPassword(updateUserDto.getPassword());
         user.setEmail(updateUserDto.getEmail());

@@ -4,10 +4,9 @@ import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
 import com.spring.baseproject.base.controllers.BaseRESTController;
 import com.spring.baseproject.base.models.BaseResponse;
-import com.spring.baseproject.base.models.FieldValidationError;
 import com.spring.baseproject.modules.demo.models.dtos.UpdateUserDto;
 import com.spring.baseproject.modules.demo.models.dtos.UserDto;
-import com.spring.baseproject.modules.demo.services.DemoService;
+import com.spring.baseproject.modules.demo.services.UserService;
 import com.spring.baseproject.swagger.BaseResponseBodySwagger;
 import com.spring.baseproject.swagger.base.FieldValidationErrorsSwagger;
 import com.spring.baseproject.swagger.demo.demo_controller.UserDtoSwagger;
@@ -21,7 +20,7 @@ import javax.validation.Valid;
 @RequestMapping("/api/demo")
 public class DemoController extends BaseRESTController {
     @Autowired
-    private DemoService demoService;
+    private UserService userService;
 
     @ApiOperation(value = "Get list users", response = Iterable.class)
     @Responses(value = {
@@ -29,7 +28,7 @@ public class DemoController extends BaseRESTController {
     })
     @GetMapping("/users")
     public BaseResponse getUsers() {
-        return demoService.getUsers();
+        return userService.getUsers();
     }
 
     @ApiOperation(value = "Find user by username", response = Iterable.class)
@@ -38,7 +37,7 @@ public class DemoController extends BaseRESTController {
     })
     @GetMapping("/users/{username}")
     public BaseResponse getUser(@PathVariable("username") String username) {
-        return demoService.findUser(username);
+        return userService.findUser(username);
     }
 
     @ApiOperation(value = "Create new user", response = Iterable.class)
@@ -49,7 +48,7 @@ public class DemoController extends BaseRESTController {
     })
     @PostMapping("/users")
     public BaseResponse createNewUser(@RequestBody @Valid UserDto userDto) {
-        return demoService.createNewUser(userDto);
+        return userService.createNewUser(userDto);
     }
 
     @ApiOperation(value = "Update user", response = Iterable.class)
@@ -61,7 +60,7 @@ public class DemoController extends BaseRESTController {
     @PutMapping("/users/{username}")
     public BaseResponse updateUser(@PathVariable("username") String username,
                                    @RequestBody @Valid UpdateUserDto updateUserDto) {
-        return demoService.updateUser(username, updateUserDto);
+        return userService.updateUser(username, updateUserDto);
     }
 
     @ApiOperation(value = "Delete user", response = Iterable.class)
@@ -71,6 +70,6 @@ public class DemoController extends BaseRESTController {
     })
     @DeleteMapping("/users/{username}")
     public BaseResponse deleteUser(@PathVariable("username") String username) {
-        return demoService.deleteUser(username);
+        return userService.deleteUser(username);
     }
 }
