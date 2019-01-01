@@ -7,10 +7,14 @@ public enum ResponseValue {
     SUCCESS(HttpStatus.OK, "success"),
 
     //400x Bad request
-    FIELD_MISSING_ERROR(HttpStatus.BAD_REQUEST, 4001, "field missing"),
+    REQUEST_PARAMS_MISSING(HttpStatus.BAD_REQUEST, 4001, "request param missing"),
     FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, 4002, "field validation error"),
 
     //404x Not found
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "user not found"),
+
+    //409x Conflict
+    USERNAME_EXISTS(HttpStatus.CONFLICT, "username exists"),
 
     //500x Internal server error
     UNEXPECTED_ERROR_OCCURRED(HttpStatus.INTERNAL_SERVER_ERROR, "unexpected error occurred");

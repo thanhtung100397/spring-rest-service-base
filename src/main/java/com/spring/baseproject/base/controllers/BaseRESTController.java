@@ -43,7 +43,7 @@ public abstract class BaseRESTController {
     public BaseResponse processMissingRequestParamError(MissingServletRequestParameterException ex) {
         List<FieldValidationError> errorFields = new ArrayList<>();
         errorFields.add(new FieldValidationError("request param", ex.getMessage()));
-        return new BaseResponse<>(ResponseValue.FIELD_MISSING_ERROR, errorFields);
+        return new BaseResponse<>(ResponseValue.REQUEST_PARAMS_MISSING, errorFields);
     }
 
     private BaseResponse processFieldErrors(List<ObjectError> errors) {
