@@ -1,48 +1,52 @@
-# Spring Boot REST service base
-`Develop by tungtt`
- 
+# Spring Boot REST service base  
+`Develop by tungtt`  
 `Email: thanhtung100397@gmail.com`
-###Project Setup
-0. NOTES ABOUT THIS PROJECT
+
+### NOTES ABOUT THIS PROJECT  
  - This project is enabled 'allow-bean-definition-overriding' configuration, so make sure DO NOT CREATE DUPLICATE BEAN (SAME NAME) 
  in this project because two bean will replace each other. Therefore, it will cause some unexpected behavior
 
-1. Clone project
-(Make sure `git` installed)
+### Project Setup  
+1. Clone project  
+(Make sure `git` installed)  
 ```bash
 $ git clone git@gitlab.com:worksvn-dev-team/base-project/spring-boot-rest-service.git (ssh)
 or
 $ git clone https://gitlab.com/worksvn-dev-team/base-project/spring-boot-rest-service.git (https)
 ```
 
-2. Install dependencies
-(Make sure `gradle v4.9` installed)
+2. Install dependencies  
+(Make sure `gradle v4.9` installed)  
 ```bash
 $ cd spring-boot-rest-service
 $ gradle dependencies
 ```
 
-3. Run project
+3. Run project  
 ```bash
 $ cd spring-boot-rest-service
 $ cd gradle bootRun
 ```
 
-###Project Modifying
+4. View Doc API  
+- Visit `http://<service host>:<service port>/swagger-ui.html` by using any browsers
+(ex: `http://localhost:8080/swagger-ui.html`)
+
+### Project Modifying  
 1. Change main package name:
 ````
 - Change main package name directory (src/main/java/<any/package/name>)
 - Update new package name to `application.base-package-name` in `application.properties`
 ````
 
-###Project Features
-#####I. Started project
-1. Install
+### Project Features  
+##### I. Started project  
+1. Install  
 ```bash
 $ git checkout master
 ```
 
-2. Project Components
+2. Project Components  
 ````
  - Spring started web (for REST)
  - Spring started test (for unit test)
@@ -50,7 +54,7 @@ $ git checkout master
  - Docker
 ````
 
-3. Project structure
+3. Project structure  
 ````
 .              
 ├── src/                                   
