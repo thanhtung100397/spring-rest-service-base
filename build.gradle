@@ -1,0 +1,77 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.20.0"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.palantir.docker'
+
+group = 'com.base'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+springBoot {
+    buildInfo()
+}
+
+docker {
+    dependsOn build
+    name "${bootJar.baseName}:latest"
+    files bootJar.archivePath
+    buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+}
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    implementation('org.springframework.boot:spring-boot-starter-web')
+
+    // Swagger doc api
+    implementation('io.springfox:springfox-swagger2:2.7.0')
+    implementation('io.springfox:springfox-swagger-ui:2.7.0')
+
+    // OAuth2 + JWT for Authentication and Authorization
+    //implementation('org.springframework.boot:spring-boot-starter-security')
+    //testImplementation('org.springframework.security:spring-security-test')
+    //implementation('org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE')
+    //implementation('org.springframework.security:spring-security-jwt:1.0.0.RELEASE')
+    //implementation ('io.jsonwebtoken:jjwt:0.9.0')
+
+    // Firebase
+    //implementation ('com.google.api-client:google-api-client:1.23.0')
+    //implementation ('com.google.firebase:firebase-admin:5.11.0')
+    //implementation('com.google.guava:guava:20.0')
+
+    // Apache POI - .xlsx reader and generator
+    //implementation('org.apache.poi:poi-ooxml:3.17')
+    //implementation('org.apache.poi:poi:3.17')
+
+    // IText (.pdf generator) + Thymeleaf (.html binding)
+    //implementation('com.itextpdf:itextpdf:5.5.13')
+    //implementation('com.itextpdf.tool:xmlworker:5.5.13')
+    //implementation('org.apache.pdfbox:pdfbox:2.0.13')
+    //implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
+
+    //Spring Data JPA - Connect SQL DBMS
+    //implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    //runtime('mysql:mysql-connector-java')
+}
