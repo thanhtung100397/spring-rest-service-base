@@ -7,6 +7,7 @@
  in this project because two bean will replace each other. Therefore, it will cause some unexpected behavior
 
 ### Project Setup  
+`NOTE`: (Make sure `gradle v4.9` installed)    
 1. Clone project  
 (Make sure `git` installed)  
 ```bash
@@ -16,7 +17,6 @@ $ git clone https://gitlab.com/worksvn-dev-team/base-project/spring-boot-rest-se
 ```
 
 2. Install dependencies  
-(Make sure `gradle v4.9` installed)  
 ```bash
 $ cd spring-boot-rest-service
 $ gradle dependencies
@@ -31,6 +31,20 @@ $ cd gradle bootRun
 4. View Doc API  
 - Visit `http://<service host>:<service port>/swagger-ui.html` by using any browsers
 (ex: `http://localhost:8080/swagger-ui.html`)
+
+5. Run all test cases
+```bash
+$ gradle test
+```
+
+6. Build .jar  
+```bash
+$ cd spring-boot-rest-service
+$ gradle build
+```  
+.jar file will be store in directory `spring-boot-rest-service/build/libs`  
+`NOTE`: `gradle build` will compile and run all project test cases, if only one test case fail, build will fail immediately. 
+Therefore, please run all project test cases before build to make sure there is no build issues
 
 ### Project Modifying  
 1. Change main package name:
@@ -49,7 +63,7 @@ $ git checkout master
 2. Project Components  
 ````
  - Spring started web (for REST)
- - Spring started test (for unit test)
+ - Mockito JUnitTest (for testing)
  - Springfox Swagger 2 (for Doc API)
  - Docker
 ````
