@@ -12,6 +12,7 @@ public enum ResponseValue {
 
     //404x Not found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "user not found"),
+    ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "item not found"),
 
     //409x Conflict
     USERNAME_EXISTS(HttpStatus.CONFLICT, "username exists"),

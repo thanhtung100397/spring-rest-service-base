@@ -71,7 +71,7 @@ dependencies {
     //implementation('org.apache.pdfbox:pdfbox:2.0.13')
     //implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
 
-    //Spring Data JPA - Connect SQL DBMS
-    //implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    //runtime('mysql:mysql-connector-java')
+    // Spring Data JPA - Connect SQL DBMS
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    runtime('mysql:mysql-connector-java')
 }

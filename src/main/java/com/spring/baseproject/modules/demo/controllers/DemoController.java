@@ -4,11 +4,13 @@ import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
 import com.spring.baseproject.base.controllers.BaseRESTController;
 import com.spring.baseproject.base.models.BaseResponse;
+import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.demo.models.dtos.UpdateUserDto;
 import com.spring.baseproject.modules.demo.models.dtos.UserDto;
 import com.spring.baseproject.modules.demo.services.UserService;
 import com.spring.baseproject.swagger.BaseResponseBodySwagger;
 import com.spring.baseproject.swagger.base.FieldValidationErrorsSwagger;
+import com.spring.baseproject.swagger.demo.demo_controller.ListUserDtosSwagger;
 import com.spring.baseproject.swagger.demo.demo_controller.UserDtoSwagger;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,7 @@ public class DemoController extends BaseRESTController {
 
     @ApiOperation(value = "Get list users", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = "SUCCESS", responseBody = UserDtoSwagger.class)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = ListUserDtosSwagger.class)
     })
     @GetMapping("/users")
     public BaseResponse getUsers() {
@@ -33,7 +35,7 @@ public class DemoController extends BaseRESTController {
 
     @ApiOperation(value = "Find user by username", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = "SUCCESS", responseBody = UserDtoSwagger.class)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = UserDtoSwagger.class)
     })
     @GetMapping("/users/{username}")
     public BaseResponse getUser(@PathVariable("username") String username) {
@@ -42,9 +44,9 @@ public class DemoController extends BaseRESTController {
 
     @ApiOperation(value = "Create new user", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = "SUCCESS", responseBody = BaseResponseBodySwagger.class),
-            @Response(responseValue = "USERNAME_EXISTS"),
-            @Response(responseValue = "FIELD_VALIDATION_ERROR", responseBody = FieldValidationErrorsSwagger.class)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBodySwagger.class),
+            @Response(responseValue = ResponseValue.FIELD_VALIDATION_ERROR, responseBody = FieldValidationErrorsSwagger.class),
+            @Response(responseValue = ResponseValue.USERNAME_EXISTS)
     })
     @PostMapping("/users")
     public BaseResponse createNewUser(@RequestBody @Valid UserDto userDto) {
@@ -53,9 +55,9 @@ public class DemoController extends BaseRESTController {
 
     @ApiOperation(value = "Update user", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = "SUCCESS", responseBody = BaseResponseBodySwagger.class),
-            @Response(responseValue = "USER_NOT_FOUND"),
-            @Response(responseValue = "FIELD_VALIDATION_ERROR", responseBody = FieldValidationErrorsSwagger.class)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBodySwagger.class),
+            @Response(responseValue = ResponseValue.FIELD_VALIDATION_ERROR, responseBody = FieldValidationErrorsSwagger.class),
+            @Response(responseValue = ResponseValue.USER_NOT_FOUND)
     })
     @PutMapping("/users/{username}")
     public BaseResponse updateUser(@PathVariable("username") String username,
@@ -65,8 +67,8 @@ public class DemoController extends BaseRESTController {
 
     @ApiOperation(value = "Delete user", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = "SUCCESS", responseBody = BaseResponseBodySwagger.class),
-            @Response(responseValue = "USER_NOT_FOUND")
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBodySwagger.class),
+            @Response(responseValue = ResponseValue.USER_NOT_FOUND)
     })
     @DeleteMapping("/users/{username}")
     public BaseResponse deleteUser(@PathVariable("username") String username) {

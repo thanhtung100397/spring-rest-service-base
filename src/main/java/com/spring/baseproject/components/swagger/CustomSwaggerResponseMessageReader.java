@@ -70,46 +70,38 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
             Response[] apiResponseAnnotations = apiResponses.value();
             boolean hasSuccessful = false;
             for (Response response : apiResponseAnnotations) {
-                ResponseValue responseValue;
-                try {
-                    responseValue = ResponseValue.valueOf(response.responseValue());
-                } catch (IllegalArgumentException e) {
-                    String message = "";
-                    if (operationAnnotation.isPresent()) {
-                        message += "[" + operationAnnotation.get().value() + "] ";
+                ResponseValue responseValue = response.responseValue();
+                if (responseValue != null) {
+                    ApiResponse apiResponse = convertResponse(responseValue.specialCode(),
+                            responseValue.message(),
+                            response.responseBody());
+                    ModelContext modelContext = returnValue(
+                            context.getGroupName(), apiResponse.response(),
+                            context.getDocumentationType(),
+                            context.getAlternateTypeProvider(),
+                            context.getGenericsNamingStrategy(),
+                            context.getIgnorableParameterTypes());
+                    Optional<ModelReference> responseModel = Optional.absent();
+                    Optional<ResolvedType> type = resolvedType(null, apiResponse);
+                    if (!hasSuccessful && isSuccessful(responseValue.httpStatus().value())) {
+                        hasSuccessful = true;
+                        type = type.or(operationResponse);
                     }
-                    message += "@Response(value=\""+response.responseValue()+"\") which is not declared in " + ResponseValue.class.getName();
-                    throw new IllegalArgumentException(message);
-                }
-                ApiResponse apiResponse = convertResponse(responseValue.specialCode(),
-                        responseValue.message(),
-                        response.responseBody());
-                ModelContext modelContext = returnValue(
-                        context.getGroupName(), apiResponse.response(),
-                        context.getDocumentationType(),
-                        context.getAlternateTypeProvider(),
-                        context.getGenericsNamingStrategy(),
-                        context.getIgnorableParameterTypes());
-                Optional<ModelReference> responseModel = Optional.absent();
-                Optional<ResolvedType> type = resolvedType(null, apiResponse);
-                if (!hasSuccessful && isSuccessful(responseValue.httpStatus().value())) {
-                    hasSuccessful = true;
-                    type = type.or(operationResponse);
-                }
-                if (type.isPresent()) {
-                    responseModel = Optional.of(
-                                    modelRefFactory(modelContext, typeNameExtractor)
-                                    .apply(context.alternateFor(type.get())));
-                }
-                Map<String, Header> headers = newHashMap(defaultHeaders);
-                headers.putAll(headers(apiResponse.responseHeaders()));
+                    if (type.isPresent()) {
+                        responseModel = Optional.of(
+                                modelRefFactory(modelContext, typeNameExtractor)
+                                        .apply(context.alternateFor(type.get())));
+                    }
+                    Map<String, Header> headers = newHashMap(defaultHeaders);
+                    headers.putAll(headers(apiResponse.responseHeaders()));
 
-                responseMessages.add(new ResponseMessageBuilder()
-                        .code(apiResponse.code())
-                        .message(apiResponse.message())
-                        .responseModel(responseModel.orNull())
-                        .headersWithDescription(headers)
-                        .build());
+                    responseMessages.add(new ResponseMessageBuilder()
+                            .code(apiResponse.code())
+                            .message(apiResponse.message())
+                            .responseModel(responseModel.orNull())
+                            .headersWithDescription(headers)
+                            .build());
+                }
             }
         }
         if (operationResponse.isPresent()) {
