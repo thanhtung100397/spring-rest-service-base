@@ -5,7 +5,6 @@ import com.spring.baseproject.utils.ClassScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -29,7 +28,7 @@ public class ContextRefreshEventHandler implements ApplicationListener<ContextRe
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        logger.info("APPLICATION CONTEXT REFRESHED EVENT");
+        logger.info("[START] APPLICATION CONTEXT REFRESHED EVENT");
         try {
             String scannedPackage = basePackage + "/events_handle";
             Set<Class<? extends Annotation>> includedAnnotations = new HashSet<>();
@@ -66,6 +65,8 @@ public class ContextRefreshEventHandler implements ApplicationListener<ContextRe
             unregisterListener(event.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            logger.info("[END] APPLICATION CONTEXT REFRESHED EVENT");
         }
     }
 
