@@ -22,11 +22,13 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/demo")
 @Api(description = "Demo REST API")
-public class DemoFakeController extends BaseRESTController {
+public class DemoController extends BaseRESTController {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "Lấy danh sách user", response = Iterable.class)
+    @ApiOperation(value = "Lấy danh sách user",
+            notes = "Lấy danh sách toàn bộ user có trong database, không hỗ trợ sắp xếp và phân trang",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = ListUserDtosSwagger.class)
     })
@@ -35,7 +37,9 @@ public class DemoFakeController extends BaseRESTController {
         return userService.getUsers();
     }
 
-    @ApiOperation(value = "Lấy user bằng username", response = Iterable.class)
+    @ApiOperation(value = "Lấy user bằng username",
+            notes = "Lấy thông tin một user dựa trên username truyển lên",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = UserDtoSwagger.class),
             @Response(responseValue = ResponseValue.USER_NOT_FOUND)
@@ -45,7 +49,10 @@ public class DemoFakeController extends BaseRESTController {
         return userService.findUser(username);
     }
 
-    @ApiOperation(value = "Tạo mới user", response = Iterable.class)
+    @ApiOperation(value = "Tạo mới user",
+            notes = "Tạo mới một user, có kiểm tra username tồn tại, không băm mật khẩu, " +
+                    "có validate các tham số trong request body",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class),
             @Response(responseValue = ResponseValue.USERNAME_EXISTS)
@@ -55,7 +62,10 @@ public class DemoFakeController extends BaseRESTController {
         return userService.createNewUser(userDto);
     }
 
-    @ApiOperation(value = "Cập nhật user", response = Iterable.class)
+    @ApiOperation(value = "Cập nhật user",
+            notes = "Cập nhật thông tin một user đã tồn tại, " +
+                    "có validate các tham số trong request body",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class),
             @Response(responseValue = ResponseValue.USER_NOT_FOUND)
@@ -66,7 +76,9 @@ public class DemoFakeController extends BaseRESTController {
         return userService.updateUser(username, updateUserDto);
     }
 
-    @ApiOperation(value = "Xóa user bằng username", response = Iterable.class)
+    @ApiOperation(value = "Xóa user bằng username",
+            notes = "Xóa user dựa trên username được truyển lên",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
     })
@@ -75,7 +87,9 @@ public class DemoFakeController extends BaseRESTController {
         return userService.deleteUser(username);
     }
 
-    @ApiOperation(value = "Xóa danh sách user", response = Iterable.class)
+    @ApiOperation(value = "Xóa danh sách user",
+            notes = "Xóa nhiều user dựa trên một danh sách các username được truyển lên, cho phép duplicate username",
+            response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
     })
