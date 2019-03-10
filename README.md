@@ -115,7 +115,7 @@ $ git remote -v
 │   │  │              └── entities                
 │   │  │                                        
 │   │  └── resources/                           # Package chứa toàn bộ các static resources và các config của project
-│   │     ├── dev/                               # Chứa các static resources mặc định
+│   │     ├── base/                               # Chứa các static resources mặc định
 │   │     ├── dev/                               # Chứa các static resources cho môi trường Development
 │   │     ├── prod/                              # Chứa các static resources cho môi trường Production
 │   │     ├── application.properties             # File config mặc định của project
@@ -137,12 +137,9 @@ $ git remote -v
 ````
 
 ###### 3. Các thành phần có thể xóa  
-- `readme_assets`  
-- `README.md`  
-- Toàn bộ package `demo` trong `java /modules`, `java /swagger` và `test`, package này được tạo ra chỉ với
-mục đích demo
+- Xem tại cấu trúc thư mục
 
-###### 4. Module structure  
+###### 4. Code structure  
 Project được thiết kế theo kiến trúc phân tẩng  
 ![](readme_assets/project-structure.png)  
 **Controller** Định nghĩa các route mapping, viết Doc API (Swagger), input validation. `Controller` tương tác với `Service` để 
@@ -205,7 +202,168 @@ class FooController extends BaseRESTController {
 - Swagger đã được tùy chỉnh để chỉ scan và visualize các @RestController nằm trong package `modules/<tên module>/controllers`, 
 do đó nên lưu ý đặt các @Controller vào đúng vị trí
 - Các `ResponseValue` có cùng `specialCode` sẽ replace lẫn nhau khi hiển thị trên swagger ui, do đó nên lưu ý không tạo 
-hai `ResponseValue` khác nhau có cùng chung một `specialCode`
+hai `ResponseValue` khác nhau có cùng chung một `specialCode`  
+
+##### II. SPRING DATA JPA
+Spring Data JPA (Java Persistence API) là một thư viên của `Spring Data`, thuộc `Spring Framework`. Với mục đích là đơn giản hóa 
+việc thao tác với datasource từ code. Hạn chế việc phải implement nhiều tầng data access khác nhau với mỗi datasource khác nhau. 
+JPA cũng cấp một ngôn ngữ truy vấn khá tương đồng với `SQL`, được gọi là `JPAQL`. Khi thực thi, `JPAQL` sẽ tự động được transform sang native 
+query phù hợp với mỗi datasource được sử dụng
+
+Trong tài liệu này chỉ hướng dẫn cách setup JPA với datasource là MySQL
+
+###### 1. Thành phần  
+````
+ - Started Project
+ - Spring Data JPA
+```` 
+
+###### 2. Cấu trúc thư mục
+````
+.   .  .     .
+│   │  │     └── modules  
+.   .  .        .                       
+│   │  │        └── demo_jpa                  # (CÓ THỂ XÓA) Code demo Spring Data JPA                   
+│   │  │           ├── controllers                                
+│   │  │           ├── repositories                
+│   │  │           ├── services                   
+│   │  │           └── models                      
+│   │  │              ├── dtos                     
+│   │  │              └── entities                
+│   │  │                                        
+│   │  └── resources/                          
+.   .     .
+│   │     ├── application.properties             # (MODIFIED) Thêm config datasource và Hibernate ORM
+│   .      .
+│                                                                     
+├── build.gradle                               # (MODIFIED) Thêm dependency
+.
+````
+
+###### 3. Các thành phần có thể xóa  
+- Xem tại cấu trúc thư mục  
+
+###### 4. Gradle dependency  
+ ````
+ ...
+ dependencies {
+     ...
+     // Spring Data JPA - Connect SQL DBMS
+     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+     runtime('mysql:mysql-connector-java')
+     ...
+ }
+ ````
+
+###### 4. Configuration
+Cấu hình JPA được đặt trong `application.properties`  
+````
+...
+# JPA configuration
+spring.jpa.hibernate.ddl-auto=(create|create-drop|update|none|validate)
+spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL55Dialect
+spring.datasource.url=jdbc:mysql://(datasource host):(datasource port)/(database name)?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&createDatabaseIfNotExist=true
+spring.datasource.username=(datasource username)     # username truy cập datasource
+spring.datasource.password=(datasource password)     # password truy cập datasource
+
+# JPA query logging configuration
+spring.jpa.show-sql=(true|false)     # Log trên console native query được tranform từ JPAQL mỗi khi một truy vấn được thực thi
+spring.jpa.properties.hibernate.format_sql=(true|false)     # Làm đẹp native query được log trên console
+...
+````
+
+###### 5. Hướng tiếp cận
+###### Code first
+Module `demo_jpa` được phát triển theo hướng tiếp cận này. Tư tưởng của `Code first` là sử dụng code để có thể kiểm soát 
+mọi hoạt động của database, từ việc tạo, cập nhật schema, các quan hệ cho đến thực hiện các truy vấn. Như vậy developer 
+sẽ không cần phải làm việc trực tiếp với dbms
+
+Để enable chế độ này, cần set lại giá trị cho biến config sau trong `application.properties`
+````
+...
+spring.jpa.hibernate.ddl-auto=(create|update|create-drop)
+...
+````
+
+###### Database first
+Trái ngược với `Code first`, tư tưởng của `Database first` là việc database phải được tạo xong từ trước, sau đó JPA 
+chỉ đóng vai trò mapping giữa các table trong databse vào các thực thể `Entity` trong code. `Database first` nên được 
+sử dụng khi dữ liệu cần được ràng buộc chặt chẽ ở tầng cơ sở dữ liệu
+
+Để enable chế độ này, cần set lại giá trị cho biến config sau trong `application.properties`
+````
+...
+spring.jpa.hibernate.ddl-auto=none
+...
+````
+
+Và chắc chắn rằng schema đã được tạo, nếu không JPA sẽ báo lỗi binding tại thời điểm runtime
+
+###### 6. Demo JPA
+![](readme_assets/demo_jpa_schema.png)
+
+**Product** Sản phầm, bao gồm: mã định danh (id), tên (name), loại size (product_size), thẻ (tags), 
+product_type_id (mã loại sản phẩm) , mô tả (description), ngày tạo (created_date)  
+
+Cấu trúc của một `Product` trong JPA
+````java
+@Entity
+@Table(name = "product")
+public class Product {
+    @Id
+    @GenericGenerator(name = "uuid", strategy = "uuid2")// uuid tự sinh
+    @GeneratedValue(generator = "uuid")
+    @Column(name = "id", length = 36)
+    private String id;
+    @Column(name = "name", nullable = false)
+    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "product_size", columnDefinition = "TEXT")// sử dụng enum
+    private ProductSize productSize;
+    @Column(name = "created_date")
+    private Date createdDate;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Convert(converter = JsonListConverter.class)
+    private List<String> tags;
+
+    @OneToOne( // quan hệ 1 - 1 với ProductType
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @JoinColumn(name = "product_type_id")
+    private ProductType productType;
+}
+
+public enum ProductSize {
+    SM, M, L, XL, XXL
+}
+````
+
+**ProductType** Loại sản phẩm, bao gồm: mã định danh (id), tên (name)  
+
+Cấu trúc của một `ProductType` trong JPA
+````java
+@Entity
+@Table(name = "product_type")
+public class ProductType {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)// id tự động tăng
+    @Column(name = "id")
+    private int id;
+    @Column(name = "name", nullable = false)
+    private String name;
+}
+````
+
+Truy cập swagger-ui để xem danh sách cách api demo  
+
+###### 6. Uninstalling
+Xóa `Configuration`, `Gradle dependency` và `demo_jpa`
 
 
 
