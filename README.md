@@ -3,35 +3,35 @@
 `Email: thanhtung100397@gmail.com`
 
 ### GHI CHÚ
- - project này yêu cầu thiết lập 'allow-bean-definition-overriding=true', do đó cần lưu ý KHÔNG tạo @Bean trùng lặp
+- Project này yêu cầu thiết lập 'allow-bean-definition-overriding=true', do đó cần lưu ý KHÔNG tạo @Bean trùng lặp
 bởi chúng sẽ replace lẫn nhau, điều này có thể gây ra các bug hoặc nhầm lẫn khó hiểu
 
 ### PROJECT SETUP
 `LƯU Ý`: Đảm bảo `git`, `java 8` và `gradle v4.9` đã được cài đặt  
 
-1. Clone project  
+###### 1. Clone project  
 - Download project với định dạng nén phù hợp từ gitlab về máy cá nhân và giải nén
 
-2. Install dependencies  
+###### 2. Install dependencies  
 ```bash
 $ gradle dependencies
 ```
 
-3. Run project (mục đích phát triển)
+###### 3. Run project (mục đích phát triển)
 ```bash
 $ cd gradle bootRun
 ```
 
-4. Xem Doc API  
+###### 4. Xem Doc API  
 - Truy cập địa chỉ `http://<host>:<port>/swagger-ui.html` bằng trình duyệt
 (ex: `http://localhost:8080/swagger-ui.html`)
 
-5. Run all test cases
+###### 5. Run all test cases
 ```bash
 $ gradle test
 ```
 
-6. Build .jar
+###### 6. Build .jar
 ```bash
 $ cd spring-boot-rest-service
 $ gradle build
@@ -43,20 +43,20 @@ Quá trình build chỉ thành công khi tất cả các test case đều đư�
 - Sau khi build thành công, file `.jar` sẽ được sinh ra tại đường dẫn 
 `<project root folder>/build/libs` 
 
-7. Execute .jar (mục đích triển khai trên production)   
+###### 7. Execute .jar (mục đích triển khai trên production)   
 ```bash
 $ java -jar <path/to/.jar>
 ```
 
 ### PROJECT MODIFY 
-1. Set git remote repository cho project 
+###### 1. Set git remote repository cho project 
 ```bash
 $ git init
 $ git remote add origin <your git remote repository>
 $ git remote -v
 ```
 
-2. Thay đổi tên package name
+###### 2. Thay đổi tên package name
 - Đổi package `src/main/java/com/spring/baseproject` thành `src/main/java/<tên/package/mới>`  
 - Cập nhật `rootProject.name` trong `settings.gradle`  
 - Cập nhật giá trị `group` trong `build.gradle`  
@@ -73,7 +73,7 @@ $ git remote -v
 
 ### PROJECT STRUCTURE  
 ##### I. STARTED  
-1. Thành phần  
+###### 1. Thành phần  
 ````
  - Spring started web (for REST)
  - Mockito JUnitTest (for unit test)
@@ -83,7 +83,7 @@ $ git remote -v
  - Demo unit test cho phần business logic @Service
 ````
 
-2. Cấu trúc thư mục
+###### 2. Cấu trúc thư mục
 ````
 .    
 ├── readme_assets/                              # (CÓ THỂ XÓA) Folder chứa static resource (image,...) của README.md
@@ -136,13 +136,13 @@ $ git remote -v
 └── README.md   (CÓ THỂ XÓA)                   # File README 
 ````
 
-3. Các thành phần có thể xóa  
+###### 3. Các thành phần có thể xóa  
 - `readme_assets`  
 - `README.md`  
 - Toàn bộ package `demo` trong `java /modules`, `java /swagger` và `test`, package này được tạo ra chỉ với
 mục đích demo
 
-4. Module structure  
+###### 4. Module structure  
 Project được thiết kế theo kiến trúc phân tẩng  
 ![](readme_assets/project-structure.png)  
 **Controller** Định nghĩa các route mapping, viết Doc API (Swagger), input validation. `Controller` tương tác với `Service` để 
@@ -166,7 +166,7 @@ Do đó, cấu trúc package của một module trong project được tổ ch�
 .   .  .
 ````
 
-5. Swagger 2 - Codegen Doc API  
+###### 5. Swagger 2 - Codegen Doc API  
 [Swagger](https://swagger.io) là một công cụ tạo API Document. Document được sinh tự động dựa trên code nên giúp tiết 
 kiệm thời gian viết tài liệu, dễ sửa đổi. Swagger sử dụng các `@Annotation` để scan toàn bộ source code trong project, 
 từ đó sẽ visualize Doc Api dưới dạng 1 web page gọi là swagger ui. Ngoài hiển thị, swagger ui còn cho phép tương tác 
