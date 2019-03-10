@@ -78,7 +78,8 @@ $ git remote -v
 
 3. Cấu trúc thư mục
 ````
-.              
+.    
+├── readme_assets/  (CÓ THỂ XÓA)                # Folder chứa static resource (image,...) của README.md
 ├── src/                                   
 │   └── main/                                
 │   │  ├── java/

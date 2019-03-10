@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.Date;
 import java.util.List;
 
 @ApiModel
@@ -15,11 +14,9 @@ public class NewProductDto {
     private String name;
     @ApiModelProperty(notes = "các tag của sản phẩm", position = 3)
     private List<String> tags;
-    @ApiModelProperty(notes = "id của loại sản phẩm", example = "NOT_EMPTY", position = 4)
-    @NotEmpty
+    @ApiModelProperty(notes = "id của loại sản phẩm", position = 4)
     private int productTypeID;
     @ApiModelProperty(notes = "loại size sản phẩm", example = "NOT_EMPTY, VALUE_IN(SM, M, L, XL, XXL)", position = 5)
-    @NotEmpty
     private ProductSize productSize;
     @ApiModelProperty(notes = "mô tả về sản phẩm", example = "NOT_EMPTY", position = 6)
     @NotEmpty

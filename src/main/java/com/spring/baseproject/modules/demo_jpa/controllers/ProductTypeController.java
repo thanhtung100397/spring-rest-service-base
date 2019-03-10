@@ -35,8 +35,8 @@ public class ProductTypeController extends BaseRESTController {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = ListProductTypeDtosSwagger.class)
     })
     @GetMapping("/productTypes")
-    public BaseResponse getProductTypes(@RequestParam(value = StringConstants.SORT_BY, defaultValue = "") List<String> sortBy,
-                                        @RequestParam(value = StringConstants.SORT_BY, defaultValue = "") List<String> sortType) {
+    public BaseResponse getProductTypes(@RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortBy,
+                                        @RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortType) {
         return productTypeService.getListProductTypeDtos(sortBy, sortType);
     }
 
@@ -81,7 +81,8 @@ public class ProductTypeController extends BaseRESTController {
 
     @ApiOperation(value = "Xóa một loại sản phẩm", response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class),
+            @Response(responseValue = ResponseValue.PRODUCT_TYPE_NOT_FOUND)
     })
     @DeleteMapping("/productTypes/{ptid}")
     public BaseResponse deleteProductType(@PathVariable("ptid") Integer productTypeID) {

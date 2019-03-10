@@ -23,8 +23,9 @@ public abstract class BaseRESTController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse onDtoValidationError(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
+    public BaseResponse onDtoValidationError(MethodArgumentNotValidException e) {
+        e.printStackTrace();
+        BindingResult result = e.getBindingResult();
         List<ObjectError> errors = result.getAllErrors();
         return handleFieldErrors(errors);
     }
@@ -32,8 +33,9 @@ public abstract class BaseRESTController {
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse onBindValueDtoError(BindException ex) {
-        BindingResult result = ex.getBindingResult();
+    public BaseResponse onBindValueDtoError(BindException e) {
+        e.printStackTrace();
+        BindingResult result = e.getBindingResult();
         List<ObjectError> errors = result.getAllErrors();
         return handleFieldErrors(errors);
     }
@@ -41,7 +43,8 @@ public abstract class BaseRESTController {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse onRequestParamMissingError(MissingServletRequestParameterException ex) {
+    public BaseResponse onRequestParamMissingError(MissingServletRequestParameterException e) {
+        e.printStackTrace();
         return new BaseResponse<>(ResponseValue.MISSING_REQUEST_PARAMS);
     }
 
@@ -49,6 +52,7 @@ public abstract class BaseRESTController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public BaseResponse onRequestBodyError(HttpMessageNotReadableException e) {
+        e.printStackTrace();
         return new BaseResponse<>(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY);
     }
 

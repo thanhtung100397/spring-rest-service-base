@@ -12,6 +12,7 @@ import com.spring.baseproject.modules.demo_jpa.repositories.ProductRepository;
 import com.spring.baseproject.modules.demo_jpa.repositories.ProductTypeRepository;
 import com.spring.baseproject.utils.SortAndPageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -67,8 +68,12 @@ public class ProductService {
     }
 
     public BaseResponse deleteProduct(String productID) {
-        productRepository.deleteById(productID);
-        return new BaseResponse(ResponseValue.SUCCESS);
+        try {
+            productRepository.deleteById(productID);
+            return new BaseResponse(ResponseValue.SUCCESS);
+        } catch (EmptyResultDataAccessException e) {
+            return new BaseResponse(ResponseValue.PRODUCT_NOT_FOUND);
+        }
     }
 
     public BaseResponse deleteListProducts(Set<String> productIDs) {
