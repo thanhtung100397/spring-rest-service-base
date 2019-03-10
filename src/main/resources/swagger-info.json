@@ -1,5 +1,7 @@
 {
   "title": "Spring Boot REST API",
   "description": "Demo Spring Boot REST API",
-  "licenseUrl": "No license"
+  "licenseUrl": "No license",
+  "developBy": "tungtt",
+  "contactEmail": "thanhtung100397@gmail.com"
 }

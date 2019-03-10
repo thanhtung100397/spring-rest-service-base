@@ -1,4 +1,4 @@
-package com.spring.baseproject.annotations.validator.text.phone.phone;
+package com.spring.baseproject.annotations.validator.text.phone;
 
 import com.spring.baseproject.constants.RegexPartern;
 
@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = PhoneValidator.class)
 public @interface Phone {
-    String message() default "invalid phone number, require {phoneRegex}";
+    String message() default "invalid phone number, require matching regex {phoneRegex}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 

@@ -2,6 +2,7 @@ package com.spring.baseproject.base.models;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.data.domain.Page;
 
 @ApiModel
 public class BaseResponseBody<T> {
@@ -18,7 +19,11 @@ public class BaseResponseBody<T> {
     public BaseResponseBody(int code, String msg, T data) {
         this.code = code;
         this.msg = msg;
-        this.data = data;
+        if (data instanceof Page) {
+            this.data = (T) new PageDto((Page) data);
+        } else {
+            this.data = data;
+        }
     }
 
     public BaseResponseBody(int code, String msg) {

@@ -26,4 +26,10 @@ public class UserRepository {
     public void deleteUser(String username) {
         users.remove(username);
     }
+
+    public void deleteUserHasUsernameIn(Set<String> listUsername) {
+        for (String username : listUsername) {
+            users.remove(username);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.spring.baseproject.modules.demo.models.entities;
 
+import com.spring.baseproject.modules.demo.models.dtos.UpdateUserDto;
 import com.spring.baseproject.modules.demo.models.dtos.UserDto;
 
 public class User {
@@ -13,9 +14,13 @@ public class User {
 
     public User(UserDto userDto) {
         this.username = userDto.getUsername();
-        this.password = userDto.getPassword();
-        this.email = userDto.getEmail();
-        this.phone = userDto.getPhone();
+        update(userDto);
+    }
+
+    public void update(UpdateUserDto updateUserDto) {
+        this.password = updateUserDto.getPassword();
+        this.email = updateUserDto.getEmail();
+        this.phone = updateUserDto.getPhone();
     }
 
     public String getUsername() {

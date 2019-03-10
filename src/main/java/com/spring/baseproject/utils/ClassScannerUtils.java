@@ -26,7 +26,7 @@ public class ClassScannerUtils {
         }
         Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(basePackage);
         for (BeanDefinition beanDefinition : beanDefinitions) {
-            Class<?> clazz = null;
+            Class<?> clazz;
             try {
                 clazz = Class.forName(beanDefinition.getBeanClassName());
                 boolean isContinuedIterating = processor.processScannedClass(clazz);
@@ -63,15 +63,12 @@ public class ClassScannerUtils {
         Class<?> results[] = new Class[1];
         results[0] = null;
         findClass(basePackage, includedAnnotationClasses, excludedAnnotationClasses,
-                new ScannedClassProcessor() {
-                    @Override
-                    public boolean processScannedClass(Class<?> clazz) {
-                        if (filter.doFilter(clazz)) {
-                            results[0] = clazz;
-                            return false;
-                        }
-                        return true;
+                clazz -> {
+                    if (filter.doFilter(clazz)) {
+                        results[0] = clazz;
+                        return false;
                     }
+                    return true;
                 });
         return results[0];
     }

@@ -1,11 +1,11 @@
 package com.spring.baseproject.events_handle;
 
 import com.spring.baseproject.annotations.event.EventHandler;
+import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.utils.ClassScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -23,14 +23,11 @@ import java.util.Set;
 public class ContextRefreshEventHandler implements ApplicationListener<ContextRefreshedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(ContextRefreshEventHandler.class);
 
-    @Value("${application.base-package-name}")
-    private String basePackage;
-
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         logger.info("[START] APPLICATION CONTEXT REFRESHED EVENT");
         try {
-            String scannedPackage = basePackage + "/events_handle";
+            String scannedPackage = ApplicationConstants.BASE_PACKAGE_NAME + "/events_handle";
             Set<Class<? extends Annotation>> includedAnnotations = new HashSet<>();
             includedAnnotations.add(EventHandler.class);
             List<Class<?>> eventHandlerClassFounds = ClassScannerUtils

@@ -3,6 +3,7 @@ package com.spring.baseproject.modules.demo.services;
 import com.spring.baseproject.BaseMockitoJUnitTests;
 import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.BaseResponseBody;
+import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.demo.models.dtos.UpdateUserDto;
 import com.spring.baseproject.modules.demo.models.dtos.UserDto;
 import com.spring.baseproject.modules.demo.models.entities.User;
@@ -132,7 +133,7 @@ public class UserServiceTests extends BaseMockitoJUnitTests {
         assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
 
         BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.NOT_FOUND.value(), responseBody.getCode());
+        assertEquals(ResponseValue.USER_NOT_FOUND.specialCode(), responseBody.getCode());
         assertEquals(0, users.size());
     }
 
@@ -181,7 +182,7 @@ public class UserServiceTests extends BaseMockitoJUnitTests {
         assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
 
         BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.CONFLICT.value(), responseBody.getCode());
+        assertEquals(ResponseValue.USERNAME_EXISTS.specialCode(), responseBody.getCode());
 
         User userExist = users.get(userDto.getUsername());
         assertNotNull(userExist);
@@ -233,7 +234,7 @@ public class UserServiceTests extends BaseMockitoJUnitTests {
         assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
 
         BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.NOT_FOUND.value(), responseBody.getCode());
+        assertEquals(ResponseValue.USER_NOT_FOUND.specialCode(), responseBody.getCode());
 
         assertEquals(0, users.size());
     }
@@ -254,19 +255,6 @@ public class UserServiceTests extends BaseMockitoJUnitTests {
 
         BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
         assertEquals(HttpStatus.OK.value(), responseBody.getCode());
-
-        assertEquals(0, users.size());
-    }
-
-    @Test
-    public void testDeleteUser_USER_NOT_FOUND() {
-        BaseResponse response = userService.deleteUser("username");
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.NOT_FOUND.value(), responseBody.getCode());
 
         assertEquals(0, users.size());
     }

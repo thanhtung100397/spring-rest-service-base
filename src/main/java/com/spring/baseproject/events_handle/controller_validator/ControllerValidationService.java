@@ -2,11 +2,10 @@ package com.spring.baseproject.events_handle.controller_validator;
 
 import com.spring.baseproject.annotations.event.EventHandler;
 import com.spring.baseproject.base.controllers.BaseRESTController;
+import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.events_handle.ApplicationEvent;
 import com.spring.baseproject.events_handle.ApplicationEventHandle;
 import com.spring.baseproject.utils.ClassScannerUtils;
-import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,8 +17,6 @@ import java.util.Set;
 @Service
 @EventHandler(event = ApplicationEvent.ON_APPLICATION_STARTED_UP)
 public class ControllerValidationService implements ApplicationEventHandle {
-    @Value("${application.base-package-name}")
-    private String basePackageName;
 
     @Override
     public String startMessage() {
@@ -36,7 +33,7 @@ public class ControllerValidationService implements ApplicationEventHandle {
         Set<Class<? extends Annotation>> includedAnnotations = new HashSet<>();
         includedAnnotations.add(RestController.class);
         Class<?> invalidRestController = ClassScannerUtils
-                .findAnnotatedClass(basePackageName, includedAnnotations, null,
+                .findAnnotatedClass(ApplicationConstants.BASE_PACKAGE_NAME, includedAnnotations, null,
                         clazz -> !BaseRESTController.class.isAssignableFrom(clazz));
         if (invalidRestController != null) {
             throw new IllegalClassFormatException(invalidRestController.getName() +

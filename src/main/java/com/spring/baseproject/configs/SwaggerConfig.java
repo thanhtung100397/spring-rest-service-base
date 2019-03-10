@@ -4,12 +4,17 @@ import com.fasterxml.classmate.TypeResolver;
 import com.spring.baseproject.components.JSONProcessor;
 import com.spring.baseproject.components.swagger.CustomSwaggerResponseMessageReader;
 import com.spring.baseproject.components.swagger.CustomSwaggerResponseModelProvider;
+import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.utils.PackageScannerUtils;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -24,60 +29,105 @@ import springfox.documentation.swagger.readers.operation.SwaggerOperationModelsP
 import springfox.documentation.swagger.readers.operation.SwaggerResponseMessageReader;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+@SuppressWarnings("Duplicates")
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-    @Value("${application.base-package-name}")
-    private String basePackageName;
     @Value("${application.swagger.info.path}")
     private String swaggerInfoPath;
+    @Value("${application.application.modules-package.name:modules}")
+    private String modulePackageName;
 
     @Autowired
     private JSONProcessor jsonProcessor;
     @Autowired(required = false)
     private BuildProperties buildProperties;
+    @Autowired
+    private BeanFactory beanFactory;
 
     @Bean
-    public Docket demoApisGroup(ApiInfo projectApiInfo) {
-        ArrayList<ResponseMessage> globalResponseMessage = new ArrayList<>();
-        globalResponseMessage.add(new ResponseMessageBuilder()
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public List<ResponseMessage> globalResponseMessages_GET() {
+        List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages.add(new ResponseMessageBuilder()
                 .code(ResponseValue.UNEXPECTED_ERROR_OCCURRED.specialCode())
                 .message(ResponseValue.UNEXPECTED_ERROR_OCCURRED.message())
                 .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.MISSING_REQUEST_PARAMS.specialCode())
+                .message(ResponseValue.MISSING_REQUEST_PARAMS.message())
+                .build());
+        return responseMessages;
+    }
 
-        return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(projectApiInfo)
-                .groupName("demo")
-                .select()
-                .apis(RequestHandlerSelectors.basePackage(basePackageName + ".modules.demo"))
-                .paths(PathSelectors.any())
-                .build()
-                .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.GET, globalResponseMessage)
-                .globalResponseMessage(RequestMethod.POST, globalResponseMessage)
-                .globalResponseMessage(RequestMethod.PUT, globalResponseMessage)
-                .globalResponseMessage(RequestMethod.DELETE, globalResponseMessage);
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public List<ResponseMessage> globalResponseMessages_POST() {
+        List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.UNEXPECTED_ERROR_OCCURRED.specialCode())
+                .message(ResponseValue.UNEXPECTED_ERROR_OCCURRED.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.specialCode())
+                .message(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.FIELD_VALIDATION_ERROR.specialCode())
+                .message(ResponseValue.FIELD_VALIDATION_ERROR.message())
+                .build());
+        return responseMessages;
+    }
 
-        //        Uncomment to use Swagger ui authorization/authentication
-        //        .securitySchemes(Collections.singletonList(apiKey()))
-        //        .securityContexts(Collections.singletonList(securityContext()));
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public List<ResponseMessage> globalResponseMessages_PUT() {
+        List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.UNEXPECTED_ERROR_OCCURRED.specialCode())
+                .message(ResponseValue.UNEXPECTED_ERROR_OCCURRED.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.specialCode())
+                .message(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.FIELD_VALIDATION_ERROR.specialCode())
+                .message(ResponseValue.FIELD_VALIDATION_ERROR.message())
+                .build());
+        return responseMessages;
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public List<ResponseMessage> globalResponseMessages_DELETE() {
+        List<ResponseMessage> responseMessages = new ArrayList<>();
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.UNEXPECTED_ERROR_OCCURRED.specialCode())
+                .message(ResponseValue.UNEXPECTED_ERROR_OCCURRED.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.specialCode())
+                .message(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY.message())
+                .build());
+        responseMessages.add(new ResponseMessageBuilder()
+                .code(ResponseValue.FIELD_VALIDATION_ERROR.specialCode())
+                .message(ResponseValue.FIELD_VALIDATION_ERROR.message())
+                .build());
+        return responseMessages;
     }
 
     @Bean
     public ApiInfo projectApiInfo() throws IOException {
-        String version = buildProperties == null? "dev" : buildProperties.getVersion();
+        String version = buildProperties == null ? "dev" : buildProperties.getVersion();
         Map<String, String> apiInfo = jsonProcessor.parseFromResourceFiles(swaggerInfoPath);
-        return new ApiInfoBuilder().title(apiInfo.get("title"))
-                .description(apiInfo.get("description"))
-                .licenseUrl(apiInfo.get("licenseUrl"))
-                .version(version)
-                .build();
+        return newApiInfo(apiInfo.get("title"), apiInfo.get("description"),
+                apiInfo.get("licenseUrl"), version, apiInfo.get("developBy"),
+                apiInfo.get("contactEmail"));
     }
 
     @Bean
@@ -89,6 +139,45 @@ public class SwaggerConfig {
     @Bean
     public SwaggerOperationModelsProvider swaggerOperationModelsProvider(TypeResolver typeResolver) {
         return new CustomSwaggerResponseModelProvider(typeResolver);
+    }
+
+    @PostConstruct
+    public void init() {
+        ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory) beanFactory;
+        String modulesPackageName = ApplicationConstants.BASE_PACKAGE_NAME+"."+modulePackageName;
+        List<String> moduleNames = PackageScannerUtils.listAllSubPackages(modulesPackageName);
+        for (String moduleName : moduleNames) {
+            Docket moduleApiGroup = newSwaggerApiGroup(moduleName, modulesPackageName + "." + moduleName + ".controllers");
+            configurableBeanFactory.registerSingleton("swaggerApiGroup" + moduleName, moduleApiGroup);
+        }
+    }
+
+    private Docket newSwaggerApiGroup(String groupName, String packageName) {
+        String moduleTitle = groupName.toUpperCase().replace("_", " ");
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName(groupName)
+                .apiInfo(newApiInfo(moduleTitle, null, null, null, null, null))
+                .select()
+                .apis(RequestHandlerSelectors.basePackage(packageName))
+                .paths(PathSelectors.any())
+                .build()
+                .useDefaultResponseMessages(false)
+                .globalResponseMessage(RequestMethod.GET, globalResponseMessages_GET())
+                .globalResponseMessage(RequestMethod.POST, globalResponseMessages_POST())
+                .globalResponseMessage(RequestMethod.PUT, globalResponseMessages_PUT())
+                .globalResponseMessage(RequestMethod.DELETE, globalResponseMessages_DELETE());
+    }
+
+    private ApiInfo newApiInfo(String title, String description,
+                               String licenseUrl, String version,
+                               String developBy, String contactEmail) {
+        return new ApiInfoBuilder()
+                .title(title)
+                .description(description)
+                .licenseUrl(licenseUrl)
+                .version(version)
+                .contact(new Contact(developBy, null, contactEmail))
+                .build();
     }
 
     private ApiKey apiKey() {

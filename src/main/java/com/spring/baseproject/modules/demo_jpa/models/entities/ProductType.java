@@ -1,5 +1,7 @@
 package com.spring.baseproject.modules.demo_jpa.models.entities;
 
+import com.spring.baseproject.modules.demo_jpa.models.dtos.NewProductTypeDto;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,9 +9,24 @@ import javax.persistence.*;
 public class ProductType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)// auto increment field
+    @Column(name = "id")
     private int id;
+    @Column(name = "name", nullable = false)// not null field
     private String name;
 
+    // always create an empty constructor
+    public ProductType() {
+    }
+
+    public ProductType(NewProductTypeDto newProductTypeDto) {
+        update(newProductTypeDto);
+    }
+
+    public void update(NewProductTypeDto newProductTypeDto) {
+        this.name = newProductTypeDto.getName();
+    }
+
+    // always create full getter and setter
     public int getId() {
         return id;
     }

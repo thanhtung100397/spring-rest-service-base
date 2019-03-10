@@ -9,6 +9,8 @@ import com.spring.baseproject.modules.demo.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 public class UserService {
     @Autowired
@@ -45,20 +47,20 @@ public class UserService {
         if (user == null) {
             return new BaseResponse(ResponseValue.USER_NOT_FOUND);
         }
-        user.setPassword(updateUserDto.getPassword());
-        user.setEmail(updateUserDto.getEmail());
-        user.setPhone(updateUserDto.getPhone());
+        user.update(updateUserDto);
         userRepository.saveUser(user);
         return new BaseResponse(ResponseValue.SUCCESS);
     }
 
     public BaseResponse deleteUser(String username) {
         //TODO business logic here
-        User user = userRepository.getUserByUsername(username);
-        if (user == null) {
-            return new BaseResponse(ResponseValue.USER_NOT_FOUND);
-        }
         userRepository.deleteUser(username);
+        return new BaseResponse(ResponseValue.SUCCESS);
+    }
+
+    public BaseResponse deleteUsers(Set<String> listUsername) {
+        //TODO business logic here
+        userRepository.deleteUserHasUsernameIn(listUsername);
         return new BaseResponse(ResponseValue.SUCCESS);
     }
 }

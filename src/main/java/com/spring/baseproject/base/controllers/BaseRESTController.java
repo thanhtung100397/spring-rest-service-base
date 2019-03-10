@@ -4,6 +4,7 @@ import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.FieldValidationError;
 import com.spring.baseproject.constants.ResponseValue;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -22,31 +23,36 @@ public abstract class BaseRESTController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse processValidationError(MethodArgumentNotValidException ex) {
+    public BaseResponse onDtoValidationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         List<ObjectError> errors = result.getAllErrors();
-        return processFieldErrors(errors);
+        return handleFieldErrors(errors);
     }
 
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse processBindValidationError(BindException ex) {
+    public BaseResponse onBindValueDtoError(BindException ex) {
         BindingResult result = ex.getBindingResult();
         List<ObjectError> errors = result.getAllErrors();
-        return processFieldErrors(errors);
+        return handleFieldErrors(errors);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public BaseResponse processMissingRequestParamError(MissingServletRequestParameterException ex) {
-        List<FieldValidationError> errorFields = new ArrayList<>();
-        errorFields.add(new FieldValidationError("request param", ex.getMessage()));
-        return new BaseResponse<>(ResponseValue.REQUEST_PARAMS_MISSING, errorFields);
+    public BaseResponse onRequestParamMissingError(MissingServletRequestParameterException ex) {
+        return new BaseResponse<>(ResponseValue.MISSING_REQUEST_PARAMS);
     }
 
-    private BaseResponse processFieldErrors(List<ObjectError> errors) {
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public BaseResponse onRequestBodyError(HttpMessageNotReadableException e) {
+        return new BaseResponse<>(ResponseValue.INVALID_OR_MISSING_REQUEST_BODY);
+    }
+
+    private BaseResponse handleFieldErrors(List<ObjectError> errors) {
         List<FieldValidationError> errorFields = new ArrayList<>();
         for (ObjectError error : errors) {
             if (error instanceof FieldError) {

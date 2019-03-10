@@ -1,4 +1,4 @@
-package com.spring.baseproject.annotations.validator.text.phone.phone;
+package com.spring.baseproject.annotations.validator.text.phone;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
