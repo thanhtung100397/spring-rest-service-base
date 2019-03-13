@@ -57,10 +57,10 @@ dependencies {
     implementation('org.springframework.security:spring-security-jwt:1.0.0.RELEASE')
     implementation('io.jsonwebtoken:jjwt:0.9.0')
 
-    // Firebase
-    //implementation ('com.google.api-client:google-api-client:1.23.0')
-    //implementation ('com.google.firebase:firebase-admin:5.11.0')
-    //implementation('com.google.guava:guava:20.0')
+    // [firebase] Firebase
+    implementation ('com.google.api-client:google-api-client:1.23.0')
+    implementation ('com.google.firebase:firebase-admin:5.11.0')
+    implementation('com.google.guava:guava:20.0')
 
     // Apache POI - .xlsx reader and generator
     //implementation('org.apache.poi:poi-ooxml:3.17')

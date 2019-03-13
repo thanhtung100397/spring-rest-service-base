@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AuthorizationRequired
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth-demo/users")
 @Api(description = "Thông tin tài khoản")
 public class UserProfileController extends BaseRESTController {
 

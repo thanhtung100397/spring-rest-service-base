@@ -32,7 +32,8 @@ public enum ResponseValue {
     STAFF_ID_EXISTS(HttpStatus.CONFLICT, 4092, "id của nhân viên đã tồn tại"),
 
     //500x Internal server error
-    UNEXPECTED_ERROR_OCCURRED(HttpStatus.INTERNAL_SERVER_ERROR, "lỗi hệ thống");
+    UNEXPECTED_ERROR_OCCURRED(HttpStatus.INTERNAL_SERVER_ERROR, "lỗi hệ thống"),
+    FIREBASE_STORAGE_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 5001, "lỗi upload file lên demo_firebase storage");
 
     private HttpStatus httpStatus;
     private String message;

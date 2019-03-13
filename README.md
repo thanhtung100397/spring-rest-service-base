@@ -376,7 +376,10 @@ Truy cập swagger-ui để xem danh sách cách api demo
 
 ###### 6. Uninstall  
 - Xóa các nhóm được comment `[jpa]` trong 02 file `application.properties` và `build.gradle`
-- Xóa 03 package `utils/jpa`, `modules/demo_jpa` và `swagger/demo_jpa`
+- Xóa 03 package:
+ + `utils/jpa`
+ + `modules/demo_jpa`
+ + `swagger/demo_jpa`
 
 ##### III. Spring Security + OAuth2 + JWT  
 [OAuth2](https://oauth.net) là một phương thức chứng thực. Nhờ nó, một web service hay một application 
@@ -554,14 +557,14 @@ Module `auth` cung cấp các tính năng
 1. Lấy thông tin tài khoản người dùng (demo_auth)   
     Api này trả về thông tin tài khoản người dùng, yêu cầu xác thực người dùng trước trước khi trả về dữ liệu  
     ````
-        PATH: /api/users/info
+        PATH: /api/auth-demo/users/info
         METHOD: GET
         REQUEST HEADER: 
             - Authorization: <loại của token> <access token của người dùng>
     ````
     Ex:
     ````
-        URL: GET http://localhost:8080/api/users/info
+        URL: GET http://localhost:8080/api/auth-demo/users/info
         REQUEST HEADER: 
          - Authorization: bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOlsib2F1dGgyX3Jlc291cmNlX3NlcnZlcl9pZCJdLCJ1c2VyX2lkIjoiNW
                                  ZkZDM5MTMtMzBhNS00OTE1LWFhNWUtMTJiMjM0NTFkZGUzIiwidXNlcl9uYW1lIjoidHVuZ3R0Iiwic2NvcGUiO
@@ -579,7 +582,7 @@ Annotation này được sử dụng để dánh dấu các api hay một nhóm 
 
 @AuthorizationRequired    // <- annotate vào controller để đánh dấu tất cả các api bên trong controller này 
 @RestController           //    đêu yêu cầu xác thực người dùng khi truy cập
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth-demo/users")
 @Api(description = "Thông tin tài khoản")
 public class UserProfileController extends BaseRESTController {
 
@@ -596,7 +599,8 @@ public class UserProfileController extends BaseRESTController {
     })
     @GetMapping("/info")
     public BaseResponse getUserProfile() {
-        return userProfileService.getUserProfile(getAuthorizedUser().getUserID());
+        return userProfileService.getUserProfile(getAuthorizedUser().getUserID()); // <- lấy thông tin của người dùng 
+                                                                                   //    sau khi token đã được xác minh
     }
     
                              //     annotate vào method để đánh dấu api này yêu cầu xác thực người dùng, 
@@ -618,7 +622,7 @@ thông báo cần xác thực người dùng trước khi thực hiện gọi
 
 Để gọi được những api loại này trên swagger-ui, làm theo hướng dẫn sau
 
-![](readme_assets/swagger-ui-auth-pass-warning.PNG)
+![](readme_assets/swagger-ui-auth-pass-warning.png)
 
 ###### 6. Uninstall  
 - Xóa các nhóm được comment `[auth]` trong 02 file `application.properties` và `build.gradle`
@@ -632,4 +636,101 @@ thông báo cần xác thực người dùng trước khi thực hiện gọi
   + `exceptions/auth`
   + `annotations/auth`
   + `components/auth`
+
+##### III. Firebase
+[Firebase](https://firebase.google.com) Firebase là một dịch vụ hệ thống backend được Google cung cấp sẵn cho nền tảng 
+Mobile. Firebase giúp lập trình viên rút ngắn thời gian phát triển, triển khai và thời gian mở rộng quy mô của ứng dụng.
+
+![](readme_assets/firebase-logo.png)
+
+###### 1. Thành phần   
+````
+ - Started Project
+ - Firebase admin
+```` 
+
+###### 2. Cấu trúc thư mục  
+````
+.   .  .    .
+│   │  │    ├── configs                           
+│   │  │    │  └── firebase                  # (NEW) Thêm firebase connection config    
+│   │  │    │
+│   │  │    ├── swagger    
+│   │  │    │  ├── demo_firebase             # (NEW)(CÓ THỂ XÓA) Thêm các swagger model cho module [demo_firebase]
+│   │  │    │
+│   │  │    └── modules  
+│   │  │        └── firebase                 # (NEW) Module core chứa các service hỗ trợ tương tác với firebase
+│   │  │        └── demo_firebase            # (NEW)(CÓ THỂ XÓA) Thêm module demo upload file lên firebase storage            
+│   │  │            ├── controllers                                
+│   │  │            ├── repositories                
+│   │  │            ├── services                   
+│   │  │            └── models                      
+│   │  │               ├── dtos                     
+│   │  │               └── entities                       
+│   │  │                                        
+│   │  └── resources/                          
+│   │     └── application.properties        # (MODIFIED) Thêm config firebase
+│   . 
+.    
+│                                                                     
+├── build.gradle                            # (MODIFIED) Thêm dependency
+.
+````
+
+###### 3. Các thành phần có thể xóa  
+- Xem tại cấu trúc thư mục  
+
+###### 4. Gradle dependency  
+ ````
+ ...
+ dependencies {
+     ...
+     // [firebase] Firebase
+     implementation ('com.google.api-client:google-api-client:1.23.0')
+     implementation ('com.google.firebase:firebase-admin:5.11.0')
+     implementation('com.google.guava:guava:20.0')
+     ...
+ }
+ ````
+
+###### 5. Configuration  
+Cấu hình firebase được đặt trong `application.properties`  
+````
+...
+# [firebase] Firebase admin configuration
+application.firebase.google-services.path=base/google-services.json   # đường đẫn đến file config google-services.json
+application.firebase.fcm.legacy-server-key=AIzaSyDiJ9DLhe-BA_2W0mQElnqELlYl89wVbz0   # legancy server key của firebase project
+application.firebase.fcm.api=https://fcm.googleapis.com/fcm/send   # api send push notification của firebase
+application.firebase.database.url=https://base-firebase-project-d8945.firebaseio.com   # database url của firebase project
+application.firebase.storage.bucket=base-firebase-project-d8945.appspot.com   # storage bucket url của firebase project
+application.firebase.storage.api=http://storage.googleapis.com   # api google storage
+...
+````
+
+![Lấy firebase legacy server key](readme_assets/firebase-console-legacy-server-key.png)
+
+![Lấy firebase config file và database url](readme_assets/firebase-console-service-accounts.png)
+
+![Lấy firebase storage bucket](readme_assets/firebase-console-storage-bucket.png)
+
+###### 6. Tính năng
+1. Firebase authentication
+2. Firebase storage
+3. Firebase real-time database / Firestore
+4. Firebase cloud messaging  
+
+###### 7. Demo firebase  
+Truy cập swagger-ui, module `demo_firebase`  
+
+###### 8. Uninstall  
+- Xóa các nhóm được comment `[firebase]` trong 02 file `application.properties` và `build.gradle`
+- Xóa `google-service.json`
+- Xóa 04 package:
+  + `configs/firebase`
+  + `modules/firebase`
+  + `modules/demo_firebase`
+  + `swagger/demo_firebase`
+  
+
+
 
