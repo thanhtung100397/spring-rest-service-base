@@ -1,10 +1,15 @@
 package com.spring.baseproject.components.swagger;
 
+import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
+import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.constants.ResponseValue;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,6 +28,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger.readers.operation.SwaggerResponseMessageReader;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +41,6 @@ import static springfox.documentation.spi.schema.contexts.ModelContext.returnVal
 import static springfox.documentation.spring.web.readers.operation.ResponseMessagesReader.httpStatusCode;
 import static springfox.documentation.spring.web.readers.operation.ResponseMessagesReader.message;
 import static springfox.documentation.swagger.annotations.Annotations.resolvedTypeFromOperation;
-import static springfox.documentation.swagger.annotations.Annotations.resolvedTypeFromResponse;
 import static springfox.documentation.swagger.readers.operation.ResponseHeaders.headers;
 import static springfox.documentation.swagger.readers.operation.ResponseHeaders.responseHeaders;
 
@@ -74,6 +79,8 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
                 if (responseValue != null) {
                     ApiResponse apiResponse = convertResponse(responseValue.specialCode(),
                             responseValue.message(),
+                            response.reference(),
+                            response.responseContainer(),
                             response.responseBody());
                     ModelContext modelContext = returnValue(
                             context.getGroupName(), apiResponse.response(),
@@ -140,7 +147,44 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
         return fromNullable(resolvedTypeFromResponse(typeResolver, resolvedType).apply(apiResponse));
     }
 
-    private ApiResponse convertResponse(int code, String message, Class<?> response) {
+    public static Function<ApiResponse, ResolvedType> resolvedTypeFromResponse(final TypeResolver typeResolver,
+                                                                               final ResolvedType defaultType) {
+
+        return new Function<ApiResponse, ResolvedType>() {
+            @Override
+            public ResolvedType apply(ApiResponse annotation) {
+                return getResolvedType(annotation, typeResolver, defaultType);
+            }
+        };
+    }
+
+    public static ResolvedType getResolvedType(ApiResponse annotation,
+                                               TypeResolver typeResolver, ResolvedType defaultType) {
+        ResolvedType resolvedType;
+        if (null != annotation && Void.class != annotation.response()) {
+            if ("List".compareToIgnoreCase(annotation.responseContainer()) == 0) {
+                resolvedType = typeResolver.resolve(List.class, annotation.response());
+            } else if ("Set".compareToIgnoreCase(annotation.responseContainer()) == 0) {
+                resolvedType = typeResolver.resolve(Set.class, annotation.response());
+            } else if ("BaseResponseBody".compareToIgnoreCase(annotation.responseContainer()) == 0) {
+                resolvedType = typeResolver.resolve(BaseResponseBody.class, annotation.response());
+                MemberResolver memberResolver = new MemberResolver(typeResolver);
+                ResolvedTypeWithMembers arrayListTypeWithMembers = memberResolver
+                        .resolve(resolvedType, null, null);
+                ResolvedField[] arrayListFields = arrayListTypeWithMembers.getMemberFields();
+                System.out.println(Arrays.toString(arrayListFields));
+            } else {
+                resolvedType = typeResolver.resolve(annotation.response());
+            }
+            return resolvedType;
+        }
+        return defaultType;
+    }
+
+    private ApiResponse convertResponse(int code, String message,
+                                        String reference,
+                                        String responseContainer,
+                                        Class<?> response) {
         return new ApiResponse() {
             @Override
             public Class<? extends Annotation> annotationType() {
@@ -168,7 +212,7 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
 
             @Override
             public String reference() {
-                return "";
+                return reference;
             }
 
             @Override
@@ -178,7 +222,7 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
 
             @Override
             public String responseContainer() {
-                return "";
+                return responseContainer;
             }
         };
     }

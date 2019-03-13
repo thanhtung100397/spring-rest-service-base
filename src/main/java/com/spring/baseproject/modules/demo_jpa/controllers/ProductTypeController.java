@@ -36,7 +36,7 @@ public class ProductTypeController extends BaseRESTController {
     })
     @GetMapping("/productTypes")
     public BaseResponse getProductTypes(@RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortBy,
-                                        @RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortType) {
+                                        @RequestParam(value = StringConstants.SORT_TYPE, defaultValue = "", required = false) List<String> sortType) {
         return productTypeService.getListProductTypeDtos(sortBy, sortType);
     }
 

@@ -14,4 +14,6 @@ public @interface NoSpace {
     String message() default "string must not contain space character";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+
+    boolean allowNull() default false;
 }

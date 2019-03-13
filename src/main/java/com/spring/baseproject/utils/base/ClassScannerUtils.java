@@ -1,4 +1,4 @@
-package com.spring.baseproject.utils;
+package com.spring.baseproject.utils.base;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -8,10 +8,10 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 public class ClassScannerUtils {
-    private static void findClass(String basePackage,
-                                  Set<Class<? extends Annotation>> includedAnnotationClasses,
-                                  Set<Class<? extends Annotation>> excludedAnnotationClasses,
-                                  ScannedClassProcessor processor) {
+    public static void findClass(String basePackage,
+                                 Set<Class<? extends Annotation>> includedAnnotationClasses,
+                                 Set<Class<? extends Annotation>> excludedAnnotationClasses,
+                                 ScannedClassProcessor processor) {
         ClassPathScanningCandidateComponentProvider scanner =
                 new ClassPathScanningCandidateComponentProvider(false);
         if (includedAnnotationClasses != null) {
@@ -45,7 +45,7 @@ public class ClassScannerUtils {
         List<Class<?>> result = new ArrayList<>();
         findClass(basePackage, includedAnnotationClasses, excludedAnnotationClasses,
                 clazz -> {
-                    if (filter != null && filter.doFilter(clazz)) {
+                    if (filter == null || filter.doFilter(clazz)) {
                         result.add(clazz);
                     }
                     return true;
@@ -64,7 +64,7 @@ public class ClassScannerUtils {
         results[0] = null;
         findClass(basePackage, includedAnnotationClasses, excludedAnnotationClasses,
                 clazz -> {
-                    if (filter.doFilter(clazz)) {
+                    if (filter != null && filter.doFilter(clazz)) {
                         results[0] = clazz;
                         return false;
                     }
@@ -73,7 +73,7 @@ public class ClassScannerUtils {
         return results[0];
     }
 
-    private interface ScannedClassProcessor {
+    public interface ScannedClassProcessor {
         boolean processScannedClass(Class<?> clazz);
     }
 

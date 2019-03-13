@@ -2,7 +2,7 @@ package com.spring.baseproject.events_handle;
 
 import com.spring.baseproject.annotations.event.EventHandler;
 import com.spring.baseproject.constants.ApplicationConstants;
-import com.spring.baseproject.utils.ClassScannerUtils;
+import com.spring.baseproject.utils.base.ClassScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -27,7 +27,7 @@ public class ContextRefreshEventHandler implements ApplicationListener<ContextRe
     public void onApplicationEvent(ContextRefreshedEvent event) {
         logger.info("[START] APPLICATION CONTEXT REFRESHED EVENT");
         try {
-            String scannedPackage = ApplicationConstants.BASE_PACKAGE_NAME + "/events_handle";
+            String scannedPackage = ApplicationConstants.BASE_PACKAGE_NAME + ".events_handle";
             Set<Class<? extends Annotation>> includedAnnotations = new HashSet<>();
             includedAnnotations.add(EventHandler.class);
             List<Class<?>> eventHandlerClassFounds = ClassScannerUtils

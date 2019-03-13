@@ -10,7 +10,7 @@ import com.spring.baseproject.modules.demo_jpa.models.entities.Product;
 import com.spring.baseproject.modules.demo_jpa.models.entities.ProductType;
 import com.spring.baseproject.modules.demo_jpa.repositories.ProductRepository;
 import com.spring.baseproject.modules.demo_jpa.repositories.ProductTypeRepository;
-import com.spring.baseproject.utils.SortAndPageFactory;
+import com.spring.baseproject.utils.jpa.SortAndPageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;

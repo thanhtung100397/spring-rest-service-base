@@ -1,4 +1,4 @@
-package com.spring.baseproject.utils;
+package com.spring.baseproject.utils.base;
 
 import java.io.File;
 import java.util.ArrayList;

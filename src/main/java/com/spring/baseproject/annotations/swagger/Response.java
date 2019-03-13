@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 public @interface Response {
     ResponseValue responseValue();
     Class<?> responseBody() default Void.class;
+    String reference() default "";
+    String responseContainer() default "";
 }

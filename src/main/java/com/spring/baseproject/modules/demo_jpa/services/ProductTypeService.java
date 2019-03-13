@@ -5,7 +5,7 @@ import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.demo_jpa.models.dtos.*;
 import com.spring.baseproject.modules.demo_jpa.models.entities.ProductType;
 import com.spring.baseproject.modules.demo_jpa.repositories.ProductTypeRepository;
-import com.spring.baseproject.utils.SortAndPageFactory;
+import com.spring.baseproject.utils.jpa.SortAndPageFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;

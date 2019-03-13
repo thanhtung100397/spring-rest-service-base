@@ -1,4 +1,4 @@
-package com.spring.baseproject.utils;
+package com.spring.baseproject.utils.jpa;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

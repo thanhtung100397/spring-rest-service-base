@@ -34,7 +34,7 @@ public class ProductController extends BaseRESTController {
     })
     @GetMapping("/products")
     public BaseResponse getPageProductPreviews(@RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortBy,
-                                               @RequestParam(value = StringConstants.SORT_BY, defaultValue = "", required = false) List<String> sortType,
+                                               @RequestParam(value = StringConstants.SORT_TYPE, defaultValue = "", required = false) List<String> sortType,
                                                @RequestParam(value = StringConstants.PAGE_INDEX, defaultValue = "0") int pageIndex,
                                                @RequestParam(value = StringConstants.PAGE_SIZE, defaultValue = NumberConstants.MAX_PAGE_SIZE + "") int pageSize) {
         return productService.getPageProductPreviewDtos(sortBy, sortType, pageIndex, pageSize);

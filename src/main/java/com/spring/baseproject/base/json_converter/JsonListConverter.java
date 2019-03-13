@@ -2,7 +2,7 @@ package com.spring.baseproject.base.json_converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.spring.baseproject.utils.JacksonObjectMapper;
+import com.spring.baseproject.utils.base.JacksonObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

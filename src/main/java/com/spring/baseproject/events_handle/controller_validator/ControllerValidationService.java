@@ -5,7 +5,7 @@ import com.spring.baseproject.base.controllers.BaseRESTController;
 import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.events_handle.ApplicationEvent;
 import com.spring.baseproject.events_handle.ApplicationEventHandle;
-import com.spring.baseproject.utils.ClassScannerUtils;
+import com.spring.baseproject.utils.base.ClassScannerUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
