@@ -1,0 +1,10 @@
+{
+  "GET": 1,
+  "HEAD": 2,
+  "POST": 3,
+  "PUT": 4,
+  "PATCH": 5,
+  "DELETE": 6,
+  "OPTIONS": 7,
+  "TRACE": 8
+}

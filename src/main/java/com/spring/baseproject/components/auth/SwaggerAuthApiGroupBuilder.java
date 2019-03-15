@@ -1,19 +1,23 @@
 package com.spring.baseproject.components.auth;
 
 import com.spring.baseproject.annotations.auth.AuthorizationRequired;
+import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
 import com.spring.baseproject.components.swagger.SwaggerApiGroupBuilder;
 import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Component
@@ -23,6 +27,9 @@ public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
 
     @Value("${application.modules-package.name:modules}")
     private String rootModulePackageName;
+
+    @Autowired
+    private RouteScannerUtils.ApiFilter apiFilter;
 
     public Docket newSwaggerApiGroup(String groupName, String packageName) {
         return super.newSwaggerApiGroup(groupName, packageName)
@@ -37,7 +44,6 @@ public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
 
     private SecurityContext securityContext(String moduleName) {
         Set<String> moduleAuthorizationRequiredRoutes = scanAuthorizationRequiredRoutes(moduleName);
-        System.out.println(moduleAuthorizationRequiredRoutes);
         return SecurityContext.builder()
                 .securityReferences(defaultAuth())
                 .forPaths(moduleAuthorizationRequiredRoutes::contains)
@@ -49,11 +55,23 @@ public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
         String rootModulePackage = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
         RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
                 null, null,
-                (containClass, method) -> containClass.getDeclaredAnnotation(AuthorizationRequired.class) != null ||
-                        method.getDeclaredAnnotation(AuthorizationRequired.class) != null,
-                (method, route) -> {
-                    routes.add(HttpMethod.valueOf(method.name()) + " " + route);
-                }, true);
+                apiFilter,
+                new RouteScannerUtils.RouteFetched() {
+                    @Override
+                    public void onNewContainerClass(Class<?> containerClass) {
+
+                    }
+
+                    @Override
+                    public void onNewMethod(Method method) {
+
+                    }
+
+                    @Override
+                    public void onNewRouteFetched(RequestMethod method, String route) {
+                        routes.add(HttpMethod.valueOf(method.name()) + " " + route);
+                    }
+                }, false);
         logger.info("module [" + moduleName + "] scanned - found " +
                 routes.size() + " authorization required route(s)");
         return routes;

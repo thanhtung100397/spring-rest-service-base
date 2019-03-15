@@ -1,4 +1,4 @@
-package com.spring.baseproject.events_handle.controller_validator;
+package com.spring.baseproject.events_handle.base;
 
 import com.spring.baseproject.annotations.event.EventHandler;
 import com.spring.baseproject.base.controllers.BaseRESTController;

@@ -1,0 +1,10 @@
+{
+  "rbac": {
+    "description": "Điều khiển truy cập trên cơ sở vai trò",
+    "priority": 1
+  },
+  "demo_rbac": {
+    "description": "Demo tính năng điều khiển truy cập trên cơ sở vai trò",
+    "priority": 2
+  }
+}

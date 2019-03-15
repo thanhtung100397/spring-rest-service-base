@@ -149,7 +149,6 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
 
     public static Function<ApiResponse, ResolvedType> resolvedTypeFromResponse(final TypeResolver typeResolver,
                                                                                final ResolvedType defaultType) {
-
         return new Function<ApiResponse, ResolvedType>() {
             @Override
             public ResolvedType apply(ApiResponse annotation) {
@@ -172,7 +171,6 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
                 ResolvedTypeWithMembers arrayListTypeWithMembers = memberResolver
                         .resolve(resolvedType, null, null);
                 ResolvedField[] arrayListFields = arrayListTypeWithMembers.getMemberFields();
-                System.out.println(Arrays.toString(arrayListFields));
             } else {
                 resolvedType = typeResolver.resolve(annotation.response());
             }

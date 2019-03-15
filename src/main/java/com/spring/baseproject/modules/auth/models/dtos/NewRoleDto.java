@@ -12,7 +12,7 @@ public class NewRoleDto {
     @NotEmpty
     private String name;
     @ApiModelProperty(notes = "loại quyền", example = "NULLABLE, VALUE_IN(ROOT, ADMIN)")
-    private RoleType roleType;
+    private RoleType type;
 
     public String getName() {
         return name;
@@ -22,11 +22,11 @@ public class NewRoleDto {
         this.name = name;
     }
 
-    public RoleType getRoleType() {
-        return roleType;
+    public RoleType getType() {
+        return type;
     }
 
-    public void setRoleType(RoleType roleType) {
-        this.roleType = roleType;
+    public void setType(RoleType type) {
+        this.type = type;
     }
 }

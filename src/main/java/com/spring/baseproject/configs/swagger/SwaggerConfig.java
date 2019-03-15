@@ -1,7 +1,7 @@
 package com.spring.baseproject.configs.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.spring.baseproject.components.JSONProcessor;
+import com.spring.baseproject.components.base.JSONProcessor;
 import com.spring.baseproject.components.swagger.CustomSwaggerResponseMessageReader;
 import com.spring.baseproject.components.swagger.CustomSwaggerResponseModelProvider;
 import com.spring.baseproject.components.swagger.SwaggerApiGroupBuilder;
@@ -25,7 +25,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
 
-@SuppressWarnings("Duplicates")
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {

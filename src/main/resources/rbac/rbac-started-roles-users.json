@@ -1,0 +1,16 @@
+{
+  "started_roles": {
+    "Root": {
+      "type": "ROOT"
+    },
+    "Admin": {
+      "type": "ADMIN"
+    }
+  },
+  "started_users": {
+    "root": {
+      "password": "123456",
+      "role_name": "Root"
+    }
+  }
+}

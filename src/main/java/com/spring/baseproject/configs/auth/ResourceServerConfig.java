@@ -1,9 +1,12 @@
 package com.spring.baseproject.configs.auth;
 
 import com.spring.baseproject.annotations.auth.AuthorizationRequired;
+import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
 import com.spring.baseproject.base.models.BaseResponseBody;
+import com.spring.baseproject.components.rbac.InMemoryRoutesDictionary;
 import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.modules.auth.services.IAuthorization;
 import com.spring.baseproject.utils.base.JacksonObjectMapper;
 import com.spring.baseproject.utils.base.PackageScannerUtils;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
@@ -22,8 +25,11 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +51,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     private TokenStore tokenStore;
     @Autowired
     private AuthenticationEntryPoint customAuthenticationEntryPoint;
+    @Autowired
+    private IAuthorization authorization;
+    @Autowired
+    private InMemoryRoutesDictionary inMemoryRoutesDictionary;
 
     @Bean
     public NoAuthorizationRequiredRoutes permitRoutesDictionary() {
@@ -54,7 +64,6 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public AuthenticationEntryPoint customAuthenticationEntryPoint() {
         return (request, response, authException) -> {
-            System.out.println(request.getMethod() + " " + request.getRequestURI());
             String responseBodyJson = JacksonObjectMapper.getInstance()
                     .writeValueAsString(new BaseResponseBody<>(ResponseValue.AUTHENTICATION_REQUIRED, null));
             response.setContentType("application/json;charset=UTF-8");
@@ -79,7 +88,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authenticated()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(customAuthenticationEntryPoint);
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .and()
+                .addFilterBefore(new JWTAuthorizationFilter(authorization, inMemoryRoutesDictionary),
+                        RequestCacheAwareFilter.class);
     }
 
     public NoAuthorizationRequiredRoutes createNoAuthorizationRequiredRoutes() {
@@ -89,13 +101,27 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         List<String> moduleNames = PackageScannerUtils.listAllSubPackages(rootModulePackage);
         Set<Class<? extends Annotation>> excludeAnnotations = new HashSet<>();
         excludeAnnotations.add(AuthorizationRequired.class);
+        excludeAnnotations.add(RoleBaseAccessControl.class);
         for (String moduleName : moduleNames) {
             int apiFound = 0;
             RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
                     null, excludeAnnotations,
                     (containClass, method) -> method.getDeclaredAnnotation(AuthorizationRequired.class) == null,
-                    (method, route) -> {
-                        noAuthorizationRequiredRoutes.addApi(HttpMethod.valueOf(method.name()), route);
+                    new RouteScannerUtils.RouteFetched() {
+                        @Override
+                        public void onNewContainerClass(Class<?> containerClass) {
+
+                        }
+
+                        @Override
+                        public void onNewMethod(Method method) {
+
+                        }
+
+                        @Override
+                        public void onNewRouteFetched(RequestMethod method, String route) {
+                            noAuthorizationRequiredRoutes.addApi(HttpMethod.valueOf(method.name()), route);
+                        }
                     }, true);
             logger.info("module [" + moduleName + "] scanned - found " +
                     apiFound + " no authorization required route(s)");

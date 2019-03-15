@@ -9,7 +9,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class RouteScannerUtils {
-    public interface NewRouteFetched {
+
+    public interface RouteFetched {
+        void onNewContainerClass(Class<?> containerClass);
+
+        void onNewMethod(Method method);
+
         void onNewRouteFetched(RequestMethod method, String route);
     }
 
@@ -21,7 +26,7 @@ public class RouteScannerUtils {
                                   Set<Class<? extends Annotation>> includedAnnotationClasses,
                                   Set<Class<? extends Annotation>> excludedAnnotationClasses,
                                   ApiFilter apiFilter,
-                                  NewRouteFetched newRouteFetched,
+                                  RouteFetched routeFetched,
                                   boolean toAntPattern) {
         if (includedAnnotationClasses == null) {
             includedAnnotationClasses = new HashSet<>();
@@ -31,6 +36,7 @@ public class RouteScannerUtils {
                 includedAnnotationClasses,
                 excludedAnnotationClasses,
                 restControllerClass -> {
+                    routeFetched.onNewContainerClass(restControllerClass);
                     String[] parentPaths;
                     RequestMapping controllerRequestMapping = restControllerClass.getDeclaredAnnotation(RequestMapping.class);
                     if (controllerRequestMapping != null) {
@@ -51,7 +57,8 @@ public class RouteScannerUtils {
                     Method[] apiMethods = restControllerClass.getDeclaredMethods();
                     for (Method apiMethod : apiMethods) {
                         if (apiFilter == null || apiFilter.allowApi(restControllerClass, apiMethod)) {
-                            fetchApis(apiMethod, parentPaths, newRouteFetched, toAntPattern);
+                            routeFetched.onNewMethod(apiMethod);
+                            fetchApis(apiMethod, parentPaths, routeFetched, toAntPattern);
                         }
                     }
                     return true;
@@ -59,7 +66,7 @@ public class RouteScannerUtils {
     }
 
     private static void fetchApis(Method method, String[] parentPaths,
-                                  NewRouteFetched newRouteFetched, boolean toAntPattern) {
+                                  RouteFetched routeFetched, boolean toAntPattern) {
         RequestMapping requestMapping = method.getDeclaredAnnotation(RequestMapping.class);
         if (requestMapping == null) {
             GetMapping getMapping = method.getDeclaredAnnotation(GetMapping.class);
@@ -73,68 +80,68 @@ public class RouteScannerUtils {
                             PatchMapping patchMapping = method.getDeclaredAnnotation(PatchMapping.class);
                             if (patchMapping != null) {
                                 newApi(parentPaths, new RequestMethod[]{RequestMethod.PATCH},
-                                        patchMapping.value(), patchMapping.path(), newRouteFetched, toAntPattern);
+                                        patchMapping.value(), patchMapping.path(), routeFetched, toAntPattern);
                             }
                         } else {
                             newApi(parentPaths, new RequestMethod[]{RequestMethod.DELETE},
-                                    deleteMapping.value(), deleteMapping.path(), newRouteFetched, toAntPattern);
+                                    deleteMapping.value(), deleteMapping.path(), routeFetched, toAntPattern);
                         }
                     } else {
                         newApi(parentPaths, new RequestMethod[]{RequestMethod.PUT},
-                                putMapping.value(), putMapping.path(), newRouteFetched, toAntPattern);
+                                putMapping.value(), putMapping.path(), routeFetched, toAntPattern);
                     }
                 } else {
                     newApi(parentPaths, new RequestMethod[]{RequestMethod.POST},
-                            postMapping.value(), postMapping.path(), newRouteFetched, toAntPattern);
+                            postMapping.value(), postMapping.path(), routeFetched, toAntPattern);
                 }
             } else {
                 newApi(parentPaths, new RequestMethod[]{RequestMethod.GET},
-                        getMapping.value(), getMapping.path(), newRouteFetched, toAntPattern);
+                        getMapping.value(), getMapping.path(), routeFetched, toAntPattern);
             }
         } else {
             newApi(parentPaths, requestMapping.method(),
-                    requestMapping.value(), requestMapping.path(), newRouteFetched, toAntPattern);
+                    requestMapping.value(), requestMapping.path(), routeFetched, toAntPattern);
         }
     }
 
     private static void newApi(String[] parentPaths,
                                RequestMethod[] methods, String[] values, String[] paths,
-                               NewRouteFetched newRouteFetched, boolean toAntPattern) {
-        Set<String> routes = new HashSet<>();
+                               RouteFetched routeFetched, boolean toAntPattern) {
+        String[] targetPaths = null;
         if (values.length > 0) {
-            for (String value : values) {
-                routes.add(toStandardPath(value));
-            }
+            targetPaths = values;
         } else if (paths.length > 0) {
-            for (String path : paths) {
-                routes.add(toStandardPath(path));
-            }
+            targetPaths = paths;
+        } else {
+            targetPaths = new String[parentPaths.length];
         }
-        if (parentPaths.length > 0) {
-            for (String parentPath : parentPaths) {
-                for (String route : routes) {
-                    for (RequestMethod method : methods) {
-                        String path = parentPath + route;
+        if (targetPaths.length > 0) {
+            for (String path : targetPaths) {
+                path = toStandardPath(path);
+                for (RequestMethod method : methods) {
+                    if (parentPaths.length > 0) {
+                        for (String parentPath : parentPaths) {
+                            path = parentPath + path;
+                            if (toAntPattern) {
+                                path = toAntPattern(path);
+                            }
+                            routeFetched.onNewRouteFetched(method, path);
+                        }
+                    } else {
                         if (toAntPattern) {
                             path = toAntPattern(path);
                         }
-                        newRouteFetched.onNewRouteFetched(method, path);
+                        routeFetched.onNewRouteFetched(method, path);
                     }
-                }
-            }
-        } else {
-            for (String route : routes) {
-                for (RequestMethod method : methods) {
-                    if (toAntPattern) {
-                        route = toAntPattern(route);
-                    }
-                    newRouteFetched.onNewRouteFetched(method, route);
                 }
             }
         }
     }
 
     public static String toStandardPath(String path) {
+        if (path == null) {
+            return "";
+        }
         StringBuilder result = new StringBuilder(path);
         if (result.charAt(0) != '/') {
             result.insert(0, "/");

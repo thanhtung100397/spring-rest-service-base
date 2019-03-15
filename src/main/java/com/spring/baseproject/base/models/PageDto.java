@@ -11,7 +11,7 @@ public class PageDto<T> {
     @ApiModelProperty(notes = "chỉ mục trang, 0-base")
     private int pageIndex;
     @ApiModelProperty(notes = "kích thước trang", position = 1)
-    private int pageSize;
+    private long pageSize;
     @ApiModelProperty(notes = "tổng số kết quả", position = 2)
     private long totalItems;
     @ApiModelProperty(notes = "danh sách kết quả", position = 3)
@@ -27,6 +27,13 @@ public class PageDto<T> {
         setItems(page.getContent());
     }
 
+    public PageDto(List<T> items, int pageIndex, int pageSize, long totalItems) {
+        this.pageIndex = pageIndex;
+        this.pageSize = pageSize <= 0 ? totalItems : pageSize;
+        this.totalItems = totalItems;
+        this.items = items;
+    }
+
     public int getPageIndex() {
         return pageIndex;
     }
@@ -35,11 +42,11 @@ public class PageDto<T> {
         this.pageIndex = pageIndex;
     }
 
-    public int getPageSize() {
+    public long getPageSize() {
         return pageSize;
     }
 
-    public void setPageSize(int pageSize) {
+    public void setPageSize(long pageSize) {
         this.pageSize = pageSize;
     }
 

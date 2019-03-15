@@ -1,5 +1,6 @@
 package com.spring.baseproject.modules.demo_auth.models.dtos;
 
+import com.spring.baseproject.modules.auth.models.dtos.RoleDto;
 import com.spring.baseproject.modules.auth.models.entities.RoleType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

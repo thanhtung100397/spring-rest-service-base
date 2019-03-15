@@ -7,6 +7,7 @@ import com.spring.baseproject.modules.auth.models.dtos.AuthenticationResult;
 import com.spring.baseproject.modules.auth.models.dtos.OriginAuthenticationResult;
 import com.spring.baseproject.modules.auth.models.dtos.RefreshTokenDto;
 import com.spring.baseproject.modules.auth.models.dtos.UsernamePasswordDto;
+import com.spring.baseproject.modules.auth.repositories.UserRepository;
 import com.spring.baseproject.utils.base.JacksonObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Date;
 
 @Service
 public class AuthenticationService {
@@ -28,6 +31,8 @@ public class AuthenticationService {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private UserRepository userRepository;
 
     public BaseResponse authenticateByUsernameAndPassword(String invokerBasicAuth,
                                                           UsernamePasswordDto usernamePasswordDto) {
@@ -55,18 +60,21 @@ public class AuthenticationService {
                     .postForObject("http://localhost:" + serverPort + "/oauth/token",
                             new HttpEntity<>(requestBody, requestHeader),
                             OriginAuthenticationResult.class);
-
+            if (originAuthResult == null) {
+                return new BaseResponse(ResponseValue.UNEXPECTED_ERROR_OCCURRED);
+            }
             AuthenticationResult result = new AuthenticationResult(originAuthResult,
                     accessTokenExpirationTime, refreshTokenExpirationTime);
+            userRepository.updateLastActive(originAuthResult.getUserID(), new Date());
             return new BaseResponse<>(ResponseValue.SUCCESS, result);
         } catch (HttpStatusCodeException e) {
             try {
-                BaseResponseBody responseBody = JacksonObjectMapper.getInstance()
+                BaseResponseBody<?> responseBody = JacksonObjectMapper.getInstance()
                         .readValue(e.getResponseBodyAsByteArray(), BaseResponseBody.class);
                 if (responseBody.getCode() == ResponseValue.AUTHENTICATION_REQUIRED.specialCode()) {
                     return new BaseResponse(ResponseValue.WRONG_CLIENT_ID_OR_SECRET);
                 }
-                return new BaseResponse(e.getStatusCode(), responseBody);
+                return new BaseResponse<>(e.getStatusCode(), responseBody);
             } catch (Exception mappingException) {
                 throw e;
             }

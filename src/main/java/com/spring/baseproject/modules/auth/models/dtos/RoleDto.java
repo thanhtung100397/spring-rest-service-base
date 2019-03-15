@@ -1,5 +1,6 @@
-package com.spring.baseproject.modules.demo_auth.models.dtos;
+package com.spring.baseproject.modules.auth.models.dtos;
 
+import com.spring.baseproject.modules.auth.models.entities.Role;
 import com.spring.baseproject.modules.auth.models.entities.RoleType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,6 +24,13 @@ public class RoleDto {
         this.name = name;
         this.type = type;
     }
+
+    public RoleDto(Role role) {
+        this.id = role.getId();
+        this.name = role.getName();
+        this.type = role.getType();
+    }
+
 
     public int getId() {
         return id;

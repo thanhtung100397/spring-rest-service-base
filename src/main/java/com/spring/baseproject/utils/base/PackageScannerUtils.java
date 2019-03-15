@@ -12,9 +12,11 @@ public class PackageScannerUtils {
         }
         List<String> subPackages = new ArrayList<>();
         File[] listChildren = file.listFiles();
-        for (File child : listChildren) {
-            if (child.isDirectory()) {
-                subPackages.add(child.getName());
+        if (listChildren != null) {
+            for (File child : listChildren) {
+                if (child.isDirectory()) {
+                    subPackages.add(child.getName());
+                }
             }
         }
         return subPackages;

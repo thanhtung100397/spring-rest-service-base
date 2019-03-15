@@ -17,8 +17,9 @@ public enum ResponseValue {
     WRONG_USERNAME_OR_PASSWORD(HttpStatus.UNAUTHORIZED, 4013, "sai tên đăng nhập hoặc mật khẩu"),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, 4014, "token không hợp lệ"),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, 4015, "token đã hết hạn"),
-    ROLE_NOT_ALLOWED(HttpStatus.UNAUTHORIZED, 4016, "quyền hiện tại của người dùng không được phép truy cập"),
-    USER_BANNED(HttpStatus.UNAUTHORIZED, 4017, "tài khoản đã bị vô hiệu hóa"),
+    USER_BANNED(HttpStatus.UNAUTHORIZED, 4016, "tài khoản đã bị vô hiệu hóa"),
+    ROLE_NOT_ALLOWED(HttpStatus.UNAUTHORIZED, 4017, "quyền hiện tại không được phép truy cập"),
+    CANNOT_MODIFY_ROOT_ACCESS_GRANT(HttpStatus.UNAUTHORIZED, 4018, "không thể thay đổi quyền ttuy cập của ROOT"),
 
     //404x Not found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 4041, "không tìm thấy người dùng"),
@@ -29,6 +30,7 @@ public enum ResponseValue {
 
     //409x Conflict
     USERNAME_EXISTS(HttpStatus.CONFLICT, 4091, "tên đăng nhập đã tồn tại"),
+    ROLE_EXISTS(HttpStatus.CONFLICT, 4091, "quyễn đã tồn tại"),
     STAFF_ID_EXISTS(HttpStatus.CONFLICT, 4092, "id của nhân viên đã tồn tại"),
 
     //500x Internal server error

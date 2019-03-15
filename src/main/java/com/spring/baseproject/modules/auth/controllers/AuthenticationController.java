@@ -8,7 +8,7 @@ import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.auth.models.dtos.RefreshTokenDto;
 import com.spring.baseproject.modules.auth.models.dtos.UsernamePasswordDto;
 import com.spring.baseproject.modules.auth.services.AuthenticationService;
-import com.spring.baseproject.swagger.auth.AuthenticationResultSwagger;
+import com.spring.baseproject.swagger.auth.authentication.AuthenticationResultSwagger;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

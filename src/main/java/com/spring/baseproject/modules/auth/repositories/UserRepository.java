@@ -17,10 +17,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Modifying
     @Transactional
-    @Query("update User u " +
-            "set u.lastActive = ?1 " +
-            "where u.id = ?2")
+    @Query("update User u set u.lastActive = ?2 where u.id = ?1")
     void updateLastActive(String userID, Date lastActive);
 
     boolean existsByUsername(String username);
+
+    @Query("select u.isBanned from User u where u.id = ?1")
+    boolean isUserBanned(String userID);
 }

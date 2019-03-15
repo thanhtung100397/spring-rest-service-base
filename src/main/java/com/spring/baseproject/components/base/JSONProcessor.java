@@ -1,4 +1,4 @@
-package com.spring.baseproject.components;
+package com.spring.baseproject.components.base;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
