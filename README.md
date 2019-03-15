@@ -312,7 +312,28 @@ spring.jpa.hibernate.ddl-auto=none
 
 Và chắc chắn rằng schema đã được tạo, nếu không JPA sẽ báo lỗi binding tại thời điểm runtime
 
-###### 7. Demo JPA  
+###### 7. JPA Dynamic Query
+JPA mặc định hỗ trợ một cách thức tao JPAQL, đó định nghĩa trực tiến query bên trong interface `JPARepository`. 
+Tuy nhiên cách thức này lại mang đến một sự hạn chế, đó là khả năng tùy chỉnh các query dựa theo từng trường hợp khác nhau.
+
+Ex: Tạo api lấy sách nhân viên, có hỗ trợ lọc theo `Họ`, `Tên`, `Ngày sinh`, `Chức vụ`. Vì là lọc nên các thông tin 
+trên đều ở trạng thái optional, có thể có mà cũng có thể không được truyền lên. Do đó query truy vấn cũng sẽ thay đổi 
+truy theo số lượng tham số được truyền lên. Việc định nghĩa query trong `JPARepository` lúc này không còn khả quan
+
+Thật may là JPA có hỗ trợ việc tạo các JPAQL dưới dạng raw string và truyền vào một đối tượng Executor để thực thi 
+truy vấn, truy nhiên làm việc với raw string query thì thực sự rất phiền phức, dễ lỗi cú pháp, ngoài ra còn tiểm tàng 
+nguy cơ dính phải SQLInjection nếu thiếu cẩn thận
+
+`JPA Dynamic Query` là một tool được tạo ra để giải quyết các vấn đề trên, tool chỉ có nhiện vụ hỗ trợ sinh raw query string 
+tự động theo ý lập tình viên, giảm thiểu lỗi cú pháp và lỗi bảo mật.
+
+Tool được đặt tại `utils/jpa` và chỉ gồm hai thành phần: 
+- `JPAQueryBuilder` giúp sinh raw query string
+- `JPAQueryExecutor` giúp thực thi raw query được sinh ra bởi `JPAQueryBuilder`. Có hỗ trợ truy vấn phân trang
+
+Tài liệu hướng dẫn các sử dụng có thể tham khảo tại [đây](https://gitlab.com/worksvn-dev-team/developer-tools/jpa-query-builder)
+
+###### 8. Demo JPA  
 
 ![](readme_assets/demo_jpa_schema.png)
 
@@ -374,7 +395,7 @@ public class ProductType {
 
 Truy cập swagger-ui để xem danh sách cách api demo  
 
-###### 6. Uninstall  
+###### 9. Uninstall  
 - Xóa các nhóm được comment `[jpa]` trong 02 file `application.properties` và `build.gradle`
 - Xóa 03 package:
  + `utils/jpa`
@@ -768,8 +789,9 @@ Truy cập `swagger-ui` để xem mô tả chi tiết
     ````
     
     Response khi user không có quyền truy cập
-    ````json
-    Http status code: 401 Unauthorized
+    ````
+    HTTP STATUS: 401 Unauthorized
+    RESPONSE BODY
     {
         "code": 4017,
         "msg": "quyền hiện tại không được phép truy cập",
@@ -919,20 +941,20 @@ public class ApiController extends BaseRESTController {
 
 **II. Gọi các api yêu cầu xác thực trên swagger-ui**
 
-Đối với các api yêu cầu RBAC trên swagger cũng có cảnh báo giống như các api `Truy cập yêu cầu xác thưc người dùng`, 
+Đối với các api yêu cầu RBAC trên swagger cũng có cảnh báo giống như các api `Truy cập yêu cầu xác thưc người dùng`
 
 ###### 8. Uninstall  
-- Xóa các nhóm được comment `[auth]` trong 02 file `application.properties` và `build.gradle`
+- Xóa các nhóm được comment `[rbac]` trong 02 file `application.properties` và `build.gradle`
 - Xóa 09 package:
-  + `modules/auth`
-  + `modules/demo_auth`
-  + `swagger/auth`
-  + `swagger/demo_auth`
-  + `configs/demo_auth`
-  + `utils/auth`
-  + `exceptions/auth`
-  + `annotations/auth`
-  + `components/auth`  
+  + `modules/rbac`
+  + `modules/demo_rbac`
+  + `swagger/rbac`
+  + `swagger/demo_rbac`
+  + `annotations/rbac`
+  + `components/rbac`
+  + `exceptions/rbac`
+  + `events_handle/rbac`
+  + `resources/rbac`
 
 ##### V. Firebase
 [Firebase](https://firebase.google.com) Firebase là một dịch vụ hệ thống backend được Google cung cấp sẵn cho nền tảng 
