@@ -14,8 +14,8 @@ public class NoSpaceValidator implements ConstraintValidator<NoSpace, String> {
     @Override
     public boolean isValid(String inputValue, ConstraintValidatorContext context) {
         if (allowNull) {
-            return inputValue == null || !inputValue.contains(" ");
+            return inputValue == null || (!inputValue.equals("") && !inputValue.contains(" "));
         }
-        return inputValue != null && !inputValue.contains(" ");
+        return inputValue != null && !inputValue.equals("") && !inputValue.contains(" ");
     }
 }
