@@ -25,7 +25,7 @@ public class AuthenticationController extends BaseRESTController {
 
     @ApiOperation(value = "Xác thực bằng người dùng bằng username và password",
             notes = "Xác thực thông qua username và password của người dùng, " +
-                    "yêu cầu thêm Basic Auth của ứng dụng thực hiện gọi api",
+                    "yêu cầu thêm client_id và secret của ứng dụng thực hiện gọi api",
             response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = AuthenticationResultSwagger.class),
@@ -33,14 +33,15 @@ public class AuthenticationController extends BaseRESTController {
             @Response(responseValue = ResponseValue.WRONG_USERNAME_OR_PASSWORD)
     })
     @PostMapping("/username-password")
-    public BaseResponse authenticateByUsernamePassword(@RequestHeader(value = "Authorization", defaultValue = "Basic Base64(swagger_ui_client:swagger_ui_secret)") String basicAuth,
+    public BaseResponse authenticateByUsernamePassword(@RequestHeader(value = "client_id") String clientID,
+                                                       @RequestHeader(value = "secret") String secret,
                                                        @RequestBody @Valid UsernamePasswordDto usernamePasswordDto) {
-        return authenticationService.authenticateByUsernameAndPassword(basicAuth, usernamePasswordDto);
+        return authenticationService.authenticateByUsernameAndPassword(clientID, secret, usernamePasswordDto);
     }
 
     @ApiOperation(value = "Xác thực người dùng bằng refresh token",
             notes = "Xác thực thông qua refresh token của người dùng, " +
-                    "yêu cầu thêm Basic Auth của ứng dụng thực hiện gọi api",
+                    "yêu cầu thêm client_id và secret của ứng dụng thực hiện gọi api",
             response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = AuthenticationResultSwagger.class),
@@ -49,8 +50,9 @@ public class AuthenticationController extends BaseRESTController {
             @Response(responseValue = ResponseValue.EXPIRED_TOKEN)
     })
     @PostMapping("/refresh-token")
-    public BaseResponse authenticateByRefreshToken(@RequestHeader(value = "Authorization", defaultValue = "Basic Base64(swagger_ui_client:swagger_ui_secret)") String basicAuth,
+    public BaseResponse authenticateByRefreshToken(@RequestHeader(value = "client_id") String clientID,
+                                                   @RequestHeader(value = "secret") String secret,
                                                    @RequestBody @Valid RefreshTokenDto refreshTokenDto) {
-        return authenticationService.authenticateByRefreshToken(basicAuth, refreshTokenDto);
+        return authenticationService.authenticateByRefreshToken(clientID, secret, refreshTokenDto);
     }
 }

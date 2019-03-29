@@ -53,4 +53,15 @@ public class SortAndPageFactory {
             return Sort.by(orders);
         }
     }
+
+    public static Sort createSort(String sortBy,
+                                  String sortType) {
+        Sort.Direction direction;
+        try {
+            direction = Sort.Direction.valueOf(sortType.toUpperCase());
+        } catch (Exception ignore) {
+            direction = Sort.Direction.ASC;
+        }
+        return Sort.by(direction, sortBy);
+    }
 }

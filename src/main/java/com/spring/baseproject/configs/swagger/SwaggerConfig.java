@@ -28,11 +28,6 @@ import java.util.*;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-    @Value("${application.oauth2.authorization-server.trusted-client.swagger-ui.id:swagger_ui_client}")
-    private String swaggerUIClientID;
-    @Value("${application.oauth2.authorization-server.trusted-client.swagger-ui.secret:swagger_ui_secret}")
-    private String swaggerUIClientSecret;
-
     @Value("${application.swagger.info.path}")
     private String swaggerInfoPath;
     @Value("${application.application.modules-package.name:modules}")
@@ -40,6 +35,8 @@ public class SwaggerConfig {
 
     @Value("${server.port:8080}")
     private int serverPort;
+    @Value("${application.swagger.excluded-modules}")
+    private Set<String> swaggerExcludedModules;
 
     @Autowired
     private JSONProcessor jsonProcessor;
@@ -76,8 +73,10 @@ public class SwaggerConfig {
         String modulesPackageName = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
         List<String> moduleNames = PackageScannerUtils.listAllSubPackages(modulesPackageName);
         for (String moduleName : moduleNames) {
-            Docket moduleApiGroup = swaggerApiGroupBuilder.newSwaggerApiGroup(moduleName, modulesPackageName + "." + moduleName + ".controllers");
-            configurableBeanFactory.registerSingleton("swaggerApiGroup" + moduleName, moduleApiGroup);
+            if (!swaggerExcludedModules.contains(moduleName)) {
+                Docket moduleApiGroup = swaggerApiGroupBuilder.newSwaggerApiGroup(moduleName, modulesPackageName + "." + moduleName + ".controllers");
+                configurableBeanFactory.registerSingleton("swaggerApiGroup" + moduleName, moduleApiGroup);
+            }
         }
     }
 }

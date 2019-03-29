@@ -43,20 +43,24 @@ public class ContextRefreshEventHandler implements ApplicationListener<ContextRe
                             });
 
             for (Class<?> eventHandlerClass : eventHandlerClassFounds) {
-                if (ApplicationEventHandle.class.isAssignableFrom(eventHandlerClass)) {
-                    ApplicationEventHandle applicationEventHandle;
-                    try {
-                        applicationEventHandle = ((ApplicationEventHandle) event.getApplicationContext().getBean(eventHandlerClass));
-                    } catch (NoSuchBeanDefinitionException e) {
-                        applicationEventHandle = ((ApplicationEventHandle) eventHandlerClass.newInstance());
-                    }
-                    logger.info(applicationEventHandle.startMessage());
-                    applicationEventHandle.handleEvent();
-                    logger.info(applicationEventHandle.successMessage());
-                } else {
-                    throw new IllegalClassFormatException(eventHandlerClass.getName() +
-                            " is annotated with @EventHandler must implement " + ApplicationEventHandle.class.getName());
+                try {
+                    if (ApplicationEventHandle.class.isAssignableFrom(eventHandlerClass)) {
+                        ApplicationEventHandle applicationEventHandle;
+                        try {
+                            applicationEventHandle = ((ApplicationEventHandle) event.getApplicationContext().getBean(eventHandlerClass));
+                        } catch (NoSuchBeanDefinitionException e) {
+                            applicationEventHandle = ((ApplicationEventHandle) eventHandlerClass.newInstance());
+                        }
+                        logger.info(applicationEventHandle.startMessage());
+                        applicationEventHandle.handleEvent();
+                        logger.info(applicationEventHandle.successMessage());
+                    } else {
+                        throw new IllegalClassFormatException(eventHandlerClass.getName() +
+                                " is annotated with @EventHandler must implement " + ApplicationEventHandle.class.getName());
 
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             unregisterListener(event.getApplicationContext());

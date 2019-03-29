@@ -8,6 +8,7 @@ import com.spring.baseproject.modules.auth.models.dtos.OriginAuthenticationResul
 import com.spring.baseproject.modules.auth.models.dtos.RefreshTokenDto;
 import com.spring.baseproject.modules.auth.models.dtos.UsernamePasswordDto;
 import com.spring.baseproject.modules.auth.repositories.UserRepository;
+import com.spring.baseproject.utils.base.Base64Utils;
 import com.spring.baseproject.utils.base.JacksonObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,27 +35,27 @@ public class AuthenticationService {
     @Autowired
     private UserRepository userRepository;
 
-    public BaseResponse authenticateByUsernameAndPassword(String invokerBasicAuth,
+    public BaseResponse authenticateByUsernameAndPassword(String clientID, String secret,
                                                           UsernamePasswordDto usernamePasswordDto) {
         LinkedMultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", "password");
         requestBody.add("username", usernamePasswordDto.getUsername());
         requestBody.add("password", usernamePasswordDto.getPassword());
-        return executeAuthenticationRequest(invokerBasicAuth, requestBody);
+        return executeAuthenticationRequest(clientID, secret, requestBody);
     }
 
-    public BaseResponse authenticateByRefreshToken(String invokerBasicAuth,
+    public BaseResponse authenticateByRefreshToken(String clientID, String secret,
                                                    RefreshTokenDto refreshTokenDto) {
         LinkedMultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", "refresh_token");
         requestBody.add("refresh_token", refreshTokenDto.getRefreshToken());
-        return executeAuthenticationRequest(invokerBasicAuth, requestBody);
+        return executeAuthenticationRequest(clientID, secret, requestBody);
     }
 
-    private BaseResponse executeAuthenticationRequest(String invokerBasicAuth,
+    private BaseResponse executeAuthenticationRequest(String clientID, String secret,
                                                       LinkedMultiValueMap<String, String> requestBody) {
         HttpHeaders requestHeader = new HttpHeaders();
-        requestHeader.add("Authorization", invokerBasicAuth);
+        requestHeader.add("Authorization", "Basic " + Base64Utils.encode(clientID+":"+secret));
         try {
             OriginAuthenticationResult originAuthResult = restTemplate
                     .postForObject("http://localhost:" + serverPort + "/oauth/token",

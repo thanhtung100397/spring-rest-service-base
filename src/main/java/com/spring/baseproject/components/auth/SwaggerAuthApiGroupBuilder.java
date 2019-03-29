@@ -1,7 +1,5 @@
 package com.spring.baseproject.components.auth;
 
-import com.spring.baseproject.annotations.auth.AuthorizationRequired;
-import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
 import com.spring.baseproject.components.swagger.SwaggerApiGroupBuilder;
 import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
