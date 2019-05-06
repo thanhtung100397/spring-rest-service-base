@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth-demo/users")
 @Api(description = "Thông tin tài khoản")
 public class UserProfileController extends BaseRESTController {
-
     @Autowired
     private UserProfileService userProfileService;
 

@@ -8,6 +8,7 @@ import com.spring.baseproject.base.controllers.BaseRESTController;
 import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.modules.auth.models.entities.RoleType;
 import com.spring.baseproject.modules.rbac.services.RBACService;
 import com.spring.baseproject.swagger.rbac.api_controller.ListApiModulesDtoSwagger;
 import io.swagger.annotations.*;

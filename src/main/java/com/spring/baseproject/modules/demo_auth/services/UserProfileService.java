@@ -17,6 +17,6 @@ public class UserProfileService {
         if (userDto == null) {
             return new BaseResponse(ResponseValue.USER_NOT_FOUND);
         }
-        return new BaseResponse(ResponseValue.SUCCESS, userDto);
+        return new BaseResponse<>(ResponseValue.SUCCESS, userDto);
     }
 }
