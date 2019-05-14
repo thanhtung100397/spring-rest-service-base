@@ -106,7 +106,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             int apiFound = 0;
             RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
                     null, excludeAnnotations,
-                    (containClass, method) -> method.getDeclaredAnnotation(AuthorizationRequired.class) == null,
+                    (containClass, method) -> method.getDeclaredAnnotation(AuthorizationRequired.class) == null &&
+                            method.getDeclaredAnnotation(RoleBaseAccessControl.class) == null,
                     new RouteScannerUtils.RouteFetched() {
                         @Override
                         public void onNewContainerClass(Class<?> containerClass) {
