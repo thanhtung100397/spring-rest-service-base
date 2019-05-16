@@ -32,4 +32,16 @@ public class RoleBaseAccessController extends BaseRESTController {
     public BaseResponse forAdmin() {
         return new BaseResponse<>(ResponseValue.SUCCESS, "Hello, admin");
     }
+
+    @ApiOperation(value = "Api chỉ cho phép user có quyền VIEWER truy cập",
+            notes = "User có quyền ROOT mặc định có thể truy cập mọi api và không cần cấp quyền",
+            response = Iterable.class)
+    @Responses(value = {
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
+    })
+    @RoleBaseAccessControl(defaultAccess = RoleType.VIEWER)
+    @GetMapping("/for-viewer")
+    public BaseResponse forViewer() {
+        return new BaseResponse<>(ResponseValue.SUCCESS, "Hello, viewer");
+    }
 }

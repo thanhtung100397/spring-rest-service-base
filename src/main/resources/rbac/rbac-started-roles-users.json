@@ -5,6 +5,9 @@
     },
     "Admin": {
       "type": "ADMIN"
+    },
+    "Viewer": {
+      "type": "VIEWER"
     }
   },
   "started_users": {

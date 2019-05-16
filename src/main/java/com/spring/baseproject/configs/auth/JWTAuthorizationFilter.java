@@ -6,9 +6,11 @@ import com.spring.baseproject.components.rbac.InMemoryRoutesDictionary;
 import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.exceptions.auth.AuthorizationException;
 import com.spring.baseproject.modules.auth.models.dtos.AuthorizedUser;
+import com.spring.baseproject.modules.auth.models.dtos.CustomUserDetail;
 import com.spring.baseproject.modules.auth.services.IAuthorization;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -37,7 +39,9 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         AuthorizedUser authorizedUser = null;
         try {
             authentication = SecurityContextHolder.getContext().getAuthentication();
-            authorizedUser = (AuthorizedUser) authentication.getPrincipal();
+            CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
+            authorizedUser = new AuthorizedUser(customUserDetail,
+                    ((OAuth2Authentication) authentication).getOAuth2Request().getClientId());
         } catch (Exception ignore) {
         }
 
