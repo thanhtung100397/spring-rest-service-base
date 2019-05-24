@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -86,8 +87,10 @@ public abstract class BaseRESTController {
 
     protected AuthorizedUser getAuthorizedUser() {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            return (AuthorizedUser) authentication.getPrincipal();
+            OAuth2Authentication oAuth2Authentication = (OAuth2Authentication) SecurityContextHolder.getContext()
+                    .getAuthentication();
+            CustomUserDetail customUserDetail = (CustomUserDetail) oAuth2Authentication.getPrincipal();
+            return new AuthorizedUser(customUserDetail, oAuth2Authentication.getOAuth2Request().getClientId());
         } catch (Exception e) {
             return new AuthorizedUser();
         }
