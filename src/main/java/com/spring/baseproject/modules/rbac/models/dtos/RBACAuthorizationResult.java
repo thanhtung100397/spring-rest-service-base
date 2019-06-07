@@ -7,10 +7,10 @@ public class RBACAuthorizationResult {
     private boolean apiAccessible;
     private boolean isBanned;
 
-    public RBACAuthorizationResult(RoleType roleType, Integer apiID, boolean isBanned) {
+    public RBACAuthorizationResult(RoleType roleType, Integer apiID, Integer roleApiID, boolean isBanned) {
         this.roleType = roleType;
         this.isBanned = isBanned;
-        this.apiAccessible = apiID != null;
+        this.apiAccessible = apiID == null || roleApiID != null;
     }
 
     public RoleType getRoleType() {
