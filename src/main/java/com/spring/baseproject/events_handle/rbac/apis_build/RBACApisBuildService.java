@@ -178,6 +178,7 @@ public class RBACApisBuildService implements ApplicationEventHandle {
                     (containClass, method) -> containClass.getDeclaredAnnotation(RoleBaseAccessControl.class) != null ||
                             method.getDeclaredAnnotation(RoleBaseAccessControl.class) != null,
                     new RouteScannerUtils.RouteFetched() {
+                        RoleBaseAccessControl parentRoleBaseAccessControl;
                         ApiFunction apiFunction;
                         String apiDescription;
                         Set<Role> accessibleRoles = new HashSet<>();
@@ -186,6 +187,7 @@ public class RBACApisBuildService implements ApplicationEventHandle {
                         public void onNewContainerClass(Class<?> containerClass) {
                             if (finalApiFunctionMap != null) {
                                 apiFunction = finalApiFunctionMap.get(containerClass.getSimpleName());
+                                parentRoleBaseAccessControl = containerClass.getDeclaredAnnotation(RoleBaseAccessControl.class);
                                 if (apiFunction == null) {
                                     apiFunction = new ApiFunction();
                                     apiFunction.setName(containerClass.getSimpleName());
@@ -208,6 +210,9 @@ public class RBACApisBuildService implements ApplicationEventHandle {
                                     apiDescription = null;
                                 }
                                 RoleBaseAccessControl roleBaseAccessControl = method.getDeclaredAnnotation(RoleBaseAccessControl.class);
+                                if (roleBaseAccessControl == null) {
+                                    roleBaseAccessControl = parentRoleBaseAccessControl;
+                                }
                                 RoleType[] accessibleRoleTypes = roleBaseAccessControl.defaultAccess();
                                 accessibleRoles = new HashSet<>();
                                 accessibleRoles.clear();

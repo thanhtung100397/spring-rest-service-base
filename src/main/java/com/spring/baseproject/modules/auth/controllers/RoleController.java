@@ -1,5 +1,6 @@
 package com.spring.baseproject.modules.auth.controllers;
 
+import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
 import com.spring.baseproject.base.controllers.BaseRESTController;
@@ -57,6 +58,7 @@ public class RoleController extends BaseRESTController {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = RoleDtoSwagger.class),
             @Response(responseValue = ResponseValue.ROLE_EXISTS)
     })
+    @RoleBaseAccessControl
     @PostMapping
     public BaseResponse createNewRole(@Valid @RequestBody NewRoleDto newRoleDto) {
         return roleService.createNewRole(newRoleDto);
@@ -67,6 +69,7 @@ public class RoleController extends BaseRESTController {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = RoleDtoSwagger.class),
             @Response(responseValue = ResponseValue.ROLE_NOT_FOUND)
     })
+    @RoleBaseAccessControl
     @PutMapping("/{rid}")
     public BaseResponse updateRole(@PathVariable("rid") int roleID,
                                    @Valid @RequestBody NewRoleDto newRoleDto) {
@@ -77,6 +80,7 @@ public class RoleController extends BaseRESTController {
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
     })
+    @RoleBaseAccessControl
     @DeleteMapping()
     public BaseResponse deleteRoles(@RequestBody Set<Integer> roleIDs) {
         return roleService.deleteRoles(roleIDs);
