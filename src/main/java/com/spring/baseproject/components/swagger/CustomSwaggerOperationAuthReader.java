@@ -1,4 +1,4 @@
-package com.spring.baseproject.components.auth;
+package com.spring.baseproject.components.swagger;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;

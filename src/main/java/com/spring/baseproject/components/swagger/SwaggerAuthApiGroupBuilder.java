@@ -1,39 +1,47 @@
-package com.spring.baseproject.components.auth;
+package com.spring.baseproject.components.swagger;
 
-import com.spring.baseproject.components.swagger.SwaggerApiGroupBuilder;
-import com.spring.baseproject.constants.ApplicationConstants;
+import com.spring.baseproject.components.auth.AuthApiFilter;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
-import springfox.documentation.service.*;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-@Component
-@Primary
 public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
     public static final Logger logger = LoggerFactory.getLogger(SwaggerAuthApiGroupBuilder.class);
 
-    @Value("${application.modules-package.name:modules}")
+    private String basePackageName;
     private String rootModulePackageName;
-
-    @Autowired
     private RouteScannerUtils.ApiFilter apiFilter;
+
+    public SwaggerAuthApiGroupBuilder(String basePackageName, String rootModulePackageName,
+                                      RouteScannerUtils.ApiFilter apiFilter) {
+        this.basePackageName = basePackageName;
+        this.rootModulePackageName = rootModulePackageName;
+        this.apiFilter = apiFilter;
+    }
+
+    public SwaggerAuthApiGroupBuilder(String basePackageName, String rootModulePackageName) {
+        this.basePackageName = basePackageName;
+        this.rootModulePackageName = rootModulePackageName;
+        this.apiFilter = new AuthApiFilter();
+    }
 
     public Docket newSwaggerApiGroup(String groupName, String packageName) {
         return super.newSwaggerApiGroup(groupName, packageName)
                 .securitySchemes(Collections.singletonList(apiKey()))
                 .securityContexts(Collections.singletonList(securityContext(groupName)));
-
     }
 
     private ApiKey apiKey() {
@@ -50,7 +58,7 @@ public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
 
     public Set<String> scanAuthorizationRequiredRoutes(String moduleName) {
         Set<String> routes = new HashSet<>();
-        String rootModulePackage = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
+        String rootModulePackage = basePackageName + "." + rootModulePackageName;
         RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
                 null, null,
                 apiFilter,

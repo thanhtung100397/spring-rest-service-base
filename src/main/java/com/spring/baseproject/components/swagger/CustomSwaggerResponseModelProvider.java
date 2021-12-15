@@ -6,14 +6,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
+import com.spring.baseproject.base.models.BaseResponseBody;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.RequestMappingContext;
-import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger.readers.operation.SwaggerOperationModelsProvider;
 
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Set;
 
@@ -22,11 +21,9 @@ import static com.google.common.collect.Sets.newHashSet;
 import static springfox.documentation.swagger.annotations.Annotations.resolvedTypeFromOperation;
 import static springfox.documentation.swagger.common.SwaggerPluginSupport.pluginDoesApply;
 
-@Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CustomSwaggerResponseModelProvider extends SwaggerOperationModelsProvider {
     private final TypeResolver typeResolver;
 
-    @Autowired
     public CustomSwaggerResponseModelProvider(TypeResolver typeResolver) {
         super(typeResolver);
         this.typeResolver = typeResolver;
@@ -68,13 +65,31 @@ public class CustomSwaggerResponseModelProvider extends SwaggerOperationModelsPr
     }
 
     private Function<Responses, List<ResolvedType>> toResolvedTypes(final RequestMappingContext context) {
-        return input -> {
+        return responses -> {
             List<ResolvedType> resolvedTypes = newArrayList();
-            for (Response response : input.value()) {
-                ResolvedType modelType = context.alternateFor(typeResolver.resolve(response.responseBody()));
-                resolvedTypes.add(modelType);
+            boolean hasSuccess = false;
+            ResolvedType defaultType = context.getReturnType();
+            for (Response response : responses.value()) {
+                resolvedTypes.add(createResolveType(context, response.responseBody(), defaultType));
+            }
+            if (!hasSuccess) {
+                resolvedTypes.add(createResolveType(context, Void.class, defaultType));
             }
             return resolvedTypes;
         };
+    }
+
+    private ResolvedType createResolveType(RequestMappingContext context,
+                                           Class<?> responseClass,
+                                           ResolvedType defaultType) {
+        Type type = responseClass;
+        if (responseClass == Void.class) {
+            if (defaultType.getErasedType() == Void.class) {
+                type = Object.class;
+            } else {
+                type = defaultType;
+            }
+        }
+        return context.alternateFor(typeResolver.resolve(BaseResponseBody.class, type));
     }
 }

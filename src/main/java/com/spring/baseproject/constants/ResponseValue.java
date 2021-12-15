@@ -7,9 +7,11 @@ public enum ResponseValue {
     SUCCESS(HttpStatus.OK, "thành công"),
 
     //400x Bad request
-    MISSING_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4001, "thiếu request param"),
-    INVALID_OR_MISSING_REQUEST_BODY(HttpStatus.BAD_REQUEST, 4002, "request body thiếu hoặc không hợp lệ"),
-    FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, 4003, "lỗi validation trường thông tin"),
+    INVALID_FIELDS(HttpStatus.BAD_REQUEST, 4001, "trường không hợp lệ"),
+    MISSING_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4002, "thiếu request param"),
+    INVALID_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4003, "requests param thiếu hoặc không hợp lệ"),
+    INVALID_OR_MISSING_REQUEST_BODY(HttpStatus.BAD_REQUEST, 4004, "request body thiếu hoặc không hợp lệ"),
+    FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, 4005, "lỗi validation trường thông tin"),
 
     //401x Unauthorized
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, 4011, "truy cập yêu cầu access token để xác thực"),

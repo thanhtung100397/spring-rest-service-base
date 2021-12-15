@@ -1,10 +1,7 @@
 package com.spring.baseproject.components.swagger;
 
-import com.fasterxml.classmate.MemberResolver;
 import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.ResolvedTypeWithMembers;
 import com.fasterxml.classmate.TypeResolver;
-import com.fasterxml.classmate.members.ResolvedField;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.spring.baseproject.annotations.swagger.Response;
@@ -14,9 +11,7 @@ import com.spring.baseproject.constants.ResponseValue;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ResponseHeader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.ModelReference;
 import springfox.documentation.schema.TypeNameExtractor;
@@ -24,11 +19,9 @@ import springfox.documentation.service.Header;
 import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.spi.schema.contexts.ModelContext;
 import springfox.documentation.spi.service.contexts.OperationContext;
-import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger.readers.operation.SwaggerResponseMessageReader;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,16 +33,13 @@ import static springfox.documentation.schema.ResolvedTypes.modelRefFactory;
 import static springfox.documentation.spi.schema.contexts.ModelContext.returnValue;
 import static springfox.documentation.spring.web.readers.operation.ResponseMessagesReader.httpStatusCode;
 import static springfox.documentation.spring.web.readers.operation.ResponseMessagesReader.message;
-import static springfox.documentation.swagger.annotations.Annotations.resolvedTypeFromOperation;
 import static springfox.documentation.swagger.readers.operation.ResponseHeaders.headers;
 import static springfox.documentation.swagger.readers.operation.ResponseHeaders.responseHeaders;
 
-@Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
 public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageReader {
     private final TypeNameExtractor typeNameExtractor;
     private final TypeResolver typeResolver;
 
-    @Autowired
     public CustomSwaggerResponseMessageReader(TypeNameExtractor typeNameExtractor, TypeResolver typeResolver) {
         super(typeNameExtractor, typeResolver);
         this.typeNameExtractor = typeNameExtractor;
@@ -61,7 +51,13 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
         ResolvedType defaultResponse = context.getReturnType();
         Optional<ApiOperation> operationAnnotation = context.findAnnotation(ApiOperation.class);
         Optional<ResolvedType> operationResponse =
-                operationAnnotation.transform(resolvedTypeFromOperation(typeResolver, defaultResponse));
+                operationAnnotation.transform(new Function<ApiOperation, ResolvedType>() {
+                    @Nullable
+                    @Override
+                    public ResolvedType apply(@Nullable ApiOperation input) {
+                        return resolvedType(defaultResponse, input);
+                    }
+                });
         Optional<ResponseHeader[]> defaultResponseHeaders = operationAnnotation.transform(responseHeaders());
         Map<String, Header> defaultHeaders = newHashMap();
         if (defaultResponseHeaders.isPresent()) {
@@ -79,8 +75,6 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
                 if (responseValue != null) {
                     ApiResponse apiResponse = convertResponse(responseValue.specialCode(),
                             responseValue.message(),
-                            response.reference(),
-                            response.responseContainer(),
                             response.responseBody());
                     ModelContext modelContext = returnValue(
                             context.getGroupName(), apiResponse.response(),
@@ -90,7 +84,7 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
                             context.getIgnorableParameterTypes());
                     Optional<ModelReference> responseModel = Optional.absent();
                     Optional<ResolvedType> type = resolvedType(null, apiResponse);
-                    if (!hasSuccessful && isSuccessful(responseValue.httpStatus().value())) {
+                    if (!hasSuccessful && responseValue == ResponseValue.SUCCESS) {
                         hasSuccessful = true;
                         type = type.or(operationResponse);
                     }
@@ -135,54 +129,45 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
         return responseMessages;
     }
 
-    private static boolean isSuccessful(int code) {
-        try {
-            return HttpStatus.Series.SUCCESSFUL.equals(HttpStatus.Series.valueOf(code));
-        } catch (Exception ignored) {
-            return false;
-        }
+    private ResolvedType resolvedType(ResolvedType resolvedType, ApiOperation apiOperation) {
+        return getResolvedType(apiOperation, typeResolver, resolvedType);
     }
 
     private Optional<ResolvedType> resolvedType(ResolvedType resolvedType, ApiResponse apiResponse) {
-        return fromNullable(resolvedTypeFromResponse(typeResolver, resolvedType).apply(apiResponse));
+        return fromNullable(getResolvedType(apiResponse, typeResolver, resolvedType));
     }
 
-    public static Function<ApiResponse, ResolvedType> resolvedTypeFromResponse(final TypeResolver typeResolver,
-                                                                               final ResolvedType defaultType) {
-        return new Function<ApiResponse, ResolvedType>() {
-            @Override
-            public ResolvedType apply(ApiResponse annotation) {
-                return getResolvedType(annotation, typeResolver, defaultType);
-            }
-        };
-    }
-
-    public static ResolvedType getResolvedType(ApiResponse annotation,
-                                               TypeResolver typeResolver, ResolvedType defaultType) {
-        ResolvedType resolvedType;
-        if (null != annotation && Void.class != annotation.response()) {
+    private ResolvedType getResolvedType(ApiOperation annotation, TypeResolver typeResolver, ResolvedType defaultType) {
+        if (null != annotation) {
             if ("List".compareToIgnoreCase(annotation.responseContainer()) == 0) {
-                resolvedType = typeResolver.resolve(List.class, annotation.response());
+                return typeResolver.resolve(List.class, annotation.response());
             } else if ("Set".compareToIgnoreCase(annotation.responseContainer()) == 0) {
-                resolvedType = typeResolver.resolve(Set.class, annotation.response());
-            } else if ("BaseResponseBody".compareToIgnoreCase(annotation.responseContainer()) == 0) {
-                resolvedType = typeResolver.resolve(BaseResponseBody.class, annotation.response());
-                MemberResolver memberResolver = new MemberResolver(typeResolver);
-                ResolvedTypeWithMembers arrayListTypeWithMembers = memberResolver
-                        .resolve(resolvedType, null, null);
-                ResolvedField[] arrayListFields = arrayListTypeWithMembers.getMemberFields();
+                return typeResolver.resolve(Set.class, annotation.response());
+            } else if (defaultType.getErasedType() != Void.class) {
+                return typeResolver.resolve(BaseResponseBody.class, defaultType);
             } else {
-                resolvedType = typeResolver.resolve(annotation.response());
+                return typeResolver.resolve(BaseResponseBody.class, Object.class);
             }
-            return resolvedType;
         }
         return defaultType;
     }
 
-    private ApiResponse convertResponse(int code, String message,
-                                        String reference,
-                                        String responseContainer,
-                                        Class<?> response) {
+    private ResolvedType getResolvedType(ApiResponse annotation, TypeResolver typeResolver, ResolvedType defaultType) {
+        if (null != annotation && Void.class != annotation.response()) {
+            if ("List".compareToIgnoreCase(annotation.responseContainer()) == 0) {
+                return typeResolver.resolve(List.class, annotation.response());
+            } else if ("Set".compareToIgnoreCase(annotation.responseContainer()) == 0) {
+                return typeResolver.resolve(Set.class, annotation.response());
+            } else if (annotation.response() != Void.class) {
+                return typeResolver.resolve(BaseResponseBody.class, annotation.response());
+            } else {
+                return typeResolver.resolve(BaseResponseBody.class, Object.class);
+            }
+        }
+        return defaultType;
+    }
+
+    private ApiResponse convertResponse(int code, String message, Class<?> response) {
         return new ApiResponse() {
             @Override
             public Class<? extends Annotation> annotationType() {
@@ -210,7 +195,7 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
 
             @Override
             public String reference() {
-                return reference;
+                return "";
             }
 
             @Override
@@ -220,7 +205,7 @@ public class CustomSwaggerResponseMessageReader extends SwaggerResponseMessageRe
 
             @Override
             public String responseContainer() {
-                return responseContainer;
+                return "";
             }
         };
     }
