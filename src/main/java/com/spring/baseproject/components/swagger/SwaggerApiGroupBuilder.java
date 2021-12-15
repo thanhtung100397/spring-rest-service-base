@@ -29,8 +29,7 @@ public class SwaggerApiGroupBuilder {
     }
 
     public List<ResponseMessage> globalResponseMessages_GET() {
-        return newResponseMessages(ResponseValue.MISSING_REQUEST_PARAMS,
-                ResponseValue.INVALID_REQUEST_PARAMS,
+        return newResponseMessages(ResponseValue.INVALID_OR_MISSING_REQUEST_PARAMS,
                 ResponseValue.UNEXPECTED_ERROR_OCCURRED);
     }
 

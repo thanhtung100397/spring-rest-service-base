@@ -40,8 +40,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         try {
             authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetail customUserDetail = (CustomUserDetail) authentication.getPrincipal();
-            authorizedUser = new AuthorizedUser(customUserDetail,
-                    ((OAuth2Authentication) authentication).getOAuth2Request().getClientId());
+            authorizedUser = new AuthorizedUser(customUserDetail);
         } catch (Exception ignore) {
         }
 

@@ -8,10 +8,11 @@ public enum ResponseValue {
 
     //400x Bad request
     INVALID_FIELDS(HttpStatus.BAD_REQUEST, 4001, "trường không hợp lệ"),
-    MISSING_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4002, "thiếu request param"),
-    INVALID_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4003, "requests param thiếu hoặc không hợp lệ"),
-    INVALID_OR_MISSING_REQUEST_BODY(HttpStatus.BAD_REQUEST, 4004, "request body thiếu hoặc không hợp lệ"),
-    FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, 4005, "lỗi validation trường thông tin"),
+    INVALID_OR_MISSING_REQUEST_PARAMS(HttpStatus.BAD_REQUEST, 4002, "requests param thiếu hoặc không hợp lệ"),
+    INVALID_OR_MISSING_REQUEST_BODY(HttpStatus.BAD_REQUEST, 4003, "request body thiếu hoặc không hợp lệ"),
+    FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, 4004, "lỗi validation trường thông tin"),
+    MISSING_CLIENT_ID_OR_SECRET(HttpStatus.NOT_FOUND, 4005, "thiếu client id hoặc secret"),
+    MISSING_GRANT_TYPE(HttpStatus.NOT_FOUND, 4006, "thiếu grant type"),
 
     //401x Unauthorized
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, 4011, "truy cập yêu cầu access token để xác thực"),
@@ -22,6 +23,10 @@ public enum ResponseValue {
     USER_BANNED(HttpStatus.UNAUTHORIZED, 4016, "tài khoản đã bị vô hiệu hóa"),
     ROLE_NOT_ALLOWED(HttpStatus.UNAUTHORIZED, 4017, "quyền hiện tại không được phép truy cập"),
     CANNOT_MODIFY_ROOT_ACCESS_GRANT(HttpStatus.UNAUTHORIZED, 4018, "không thể thay đổi quyền ttuy cập của ROOT"),
+
+    //403x Forbidden
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, 4031, "không có quyền truy cập"),
+    GRANT_TYPE_NOT_SUPPORTED(HttpStatus.FORBIDDEN, 4032, "grant type không được hỗ trợ"),
 
     //404x Not found
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 4041, "không tìm thấy người dùng"),

@@ -3,6 +3,8 @@ package com.spring.baseproject.modules.auth.models.dtos;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Map;
+
 @ApiModel
 public class AuthenticationResult {
     @ApiModelProperty(notes = "id của user")
@@ -23,15 +25,17 @@ public class AuthenticationResult {
     public AuthenticationResult() {
     }
 
-    public AuthenticationResult(OriginAuthenticationResult originAuthenticationResult,
+    public AuthenticationResult(String tokenType,
+                                String accessToken, String refreshToken,
+                                Map<String, ?> additionInfo,
                                 long accessTokenExpSecs, long refreshTokenExpSecs) {
-        this.userID = originAuthenticationResult.getUserID();
-        this.tokenType = originAuthenticationResult.getTokenType();
-        this.jti = originAuthenticationResult.getJti();
-        this.accessToken = originAuthenticationResult.getAccessToken();
-        this.refreshToken = originAuthenticationResult.getRefreshToken();
+        this.tokenType = tokenType;
+        this.accessToken = accessToken;
         this.accessTokenExpSecs = accessTokenExpSecs;
+        this.refreshToken = refreshToken;
         this.refreshTokenExpSecs = refreshTokenExpSecs;
+        this.userID = (String) additionInfo.get("user_id");
+        this.jti = (String) additionInfo.get("jti");
     }
 
     public String getUserID() {

@@ -1,7 +1,7 @@
 package com.spring.baseproject.modules.auth.services;
 
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.auth.models.dtos.NewUserDto;
 import com.spring.baseproject.modules.auth.models.entities.Role;
 import com.spring.baseproject.modules.auth.models.entities.User;
@@ -20,15 +20,15 @@ public class UserRegistrationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public BaseResponse registerNewUser(NewUserDto newUserDto) {
+    public void registerNewUser(NewUserDto newUserDto) throws ResponseException {
         if (userRepository.existsByUsername(newUserDto.getUsername())) {
-            return new BaseResponse(ResponseValue.USERNAME_EXISTS);
+            throw new ResponseException(ResponseValue.USERNAME_EXISTS);
         }
         Role role = null;
         if (newUserDto.getRoleID() != null) {
             role = roleRepository.findFirstById(newUserDto.getRoleID());
             if (role == null) {
-                return new BaseResponse(ResponseValue.ROLE_NOT_FOUND);
+                throw new ResponseException(ResponseValue.ROLE_NOT_FOUND);
             }
         }
         User user = new User();
@@ -37,6 +37,5 @@ public class UserRegistrationService {
         user.setPassword(hashPassword);
         user.setRole(role);
         userRepository.save(user);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 }

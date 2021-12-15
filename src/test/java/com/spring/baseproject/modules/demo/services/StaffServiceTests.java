@@ -4,6 +4,7 @@ import com.spring.baseproject.BaseMockitoJUnitTests;
 import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.demo.models.dtos.StaffDto;
 import com.spring.baseproject.modules.demo.models.entities.Staff;
 import com.spring.baseproject.modules.demo.repositories.StaffRepository;
@@ -18,6 +19,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static com.spring.baseproject.utils.AssertThrowable.*;
 
 public class StaffServiceTests extends BaseMockitoJUnitTests {
     @InjectMocks
@@ -81,26 +83,14 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staffs.put(staff1.getId(), staff1);
         staffs.put(staff2.getId(), staff2);
 
-        BaseResponse response = staffService.getStaffs();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.OK.value(), responseBody.getCode());
-
-        List<Staff> staff = new ArrayList<>();
-        try {
-            staff = (List<Staff>) responseBody.getData();
-        } catch (Exception ignore) {
-        }
-        assertEquals(2, staff.size());
-        assertEquals(staff2, staff.get(0));
-        assertEquals(staff1, staff.get(1));
+        List<Staff> listStaffs = staffService.getStaffs();
+        assertEquals(2, listStaffs.size());
+        assertEquals(staff2, listStaffs.get(0));
+        assertEquals(staff1, listStaffs.get(1));
     }
 
     @Test
-    public void testFindStaff_SUCCESS() {
+    public void testFindStaff_SUCCESS() throws ResponseException {
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
@@ -109,37 +99,27 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staff.setPhone("0912345678");
         staffs.put(staff.getId(), staff);
 
-        BaseResponse response = staffService.findStaff(staff.getId());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.OK.value(), responseBody.getCode());
-
-        assertThat(responseBody.getData(), instanceOf(Staff.class));
-        Staff responseStaff = (Staff) responseBody.getData();
-        assertEquals(staff.getId(), responseStaff.getId());
-        assertEquals(staff.getFirstName(), responseStaff.getFirstName());
-        assertEquals(staff.getLastName(), responseStaff.getLastName());
-        assertEquals(staff.getEmail(), responseStaff.getEmail());
-        assertEquals(staff.getPhone(), responseStaff.getPhone());
+        Staff foundStaff = staffService.findStaff(staff.getId());
+        assertEquals(staff.getId(), foundStaff.getId());
+        assertEquals(staff.getFirstName(), foundStaff.getFirstName());
+        assertEquals(staff.getLastName(), foundStaff.getLastName());
+        assertEquals(staff.getEmail(), foundStaff.getEmail());
+        assertEquals(staff.getPhone(), foundStaff.getPhone());
     }
 
     @Test
-    public void testFindStaff_STAFF_NOT_FOUND() {
-        BaseResponse response = staffService.findStaff("12345");
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(ResponseValue.STAFF_NOT_FOUND.specialCode(), responseBody.getCode());
-        assertEquals(0, staffs.size());
+    public void testFindStaff_STAFF_NOT_FOUND() throws ResponseException {
+        assertThrows(
+                () -> staffService.findStaff("12345"),
+                (throwable) -> {
+                    assertThat(throwable, instanceOf(ResponseException.class));
+                    ResponseException responseException = (ResponseException) throwable;
+                    assertEquals(ResponseValue.STAFF_NOT_FOUND, responseException.getResponseValue());
+                });
     }
 
     @Test
-    public void testCreateNewStaff_SUCCESS() {
+    public void testCreateNewStaff_SUCCESS() throws ResponseException {
         StaffDto staffDto = new StaffDto();
         staffDto.setId("12345");
         staffDto.setFirstName("Foo");
@@ -147,13 +127,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staffDto.setEmail("email@abc.xyz");
         staffDto.setPhone("0912345678");
 
-        BaseResponse response = staffService.createNewStaff(staffDto);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.OK.value(), responseBody.getCode());
+        staffService.createNewStaff(staffDto);
 
         Staff staff = staffs.get(staffDto.getId());
         assertNotNull(staff);
@@ -181,13 +155,13 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staffDto.setEmail("abc@def.ghi");
         staffDto.setPhone("0987654321");
 
-        BaseResponse response = staffService.createNewStaff(staffDto);
-
-        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(ResponseValue.STAFF_ID_EXISTS.specialCode(), responseBody.getCode());
+        assertThrows(
+                () -> staffService.createNewStaff(staffDto),
+                (throwable) -> {
+                    assertThat(throwable, instanceOf(ResponseException.class));
+                    ResponseException responseException = (ResponseException) throwable;
+                    assertEquals(ResponseValue.STAFF_ID_EXISTS, responseException.getResponseValue());
+                });
 
         Staff staffExist = staffs.get(staffDto.getId());
         assertNotNull(staffExist);
@@ -199,7 +173,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
     }
 
     @Test
-    public void testUpdateStaff_SUCCESS() {
+    public void testUpdateStaff_SUCCESS() throws ResponseException {
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
@@ -214,13 +188,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staffDto.setEmail("abc@def.ghi");
         staffDto.setPhone("0987654321");
 
-        BaseResponse response = staffService.updateStaff(staff.getId(), staffDto);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.OK.value(), responseBody.getCode());
+        staffService.updateStaff(staff.getId(), staffDto);
 
         Staff staffExist = staffs.get(staff.getId());
         assertEquals(1, staffs.size());
@@ -239,13 +207,13 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staffDto.setEmail("abc@def.ghi");
         staffDto.setPhone("0987654321");
 
-        BaseResponse response = staffService.updateStaff("12345", staffDto);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(ResponseValue.STAFF_NOT_FOUND.specialCode(), responseBody.getCode());
+        assertThrows(
+                () -> staffService.updateStaff("12345", staffDto),
+                (throwable) -> {
+                    assertThat(throwable, instanceOf(ResponseException.class));
+                    ResponseException responseException = (ResponseException) throwable;
+                    assertEquals(ResponseValue.STAFF_NOT_FOUND, responseException.getResponseValue());
+                });
 
         assertEquals(0, staffs.size());
     }
@@ -260,13 +228,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
         staff.setPhone("0912345678");
         staffs.put(staff.getId(), staff);
 
-        BaseResponse response = staffService.deleteStaff("12345");
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertThat(response.getBody(), instanceOf(BaseResponseBody.class));
-
-        BaseResponseBody responseBody = (BaseResponseBody) response.getBody();
-        assertEquals(HttpStatus.OK.value(), responseBody.getCode());
+        staffService.deleteStaff("12345");
 
         assertEquals(0, staffs.size());
     }

@@ -1,8 +1,8 @@
 package com.spring.baseproject.modules.demo_jpa.services;
 
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.constants.NumberConstants;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.demo_jpa.models.dtos.NewProductDto;
 import com.spring.baseproject.modules.demo_jpa.models.dtos.ProductDto;
 import com.spring.baseproject.modules.demo_jpa.models.dtos.ProductPreviewDto;
@@ -27,57 +27,52 @@ public class ProductService {
     @Autowired
     private ProductTypeRepository productTypeRepository;
 
-    public BaseResponse getPageProductPreviewDtos(List<String> sortBy, List<String> sortType,
-                                                  int pageIndex, int pageSize) {
+    public Page<ProductPreviewDto> getPageProductPreviewDtos(List<String> sortBy, List<String> sortType,
+                                                             int pageIndex, int pageSize) {
         Pageable pageable = SortAndPageFactory
                 .createPageable(sortBy, sortType, pageIndex, pageSize, NumberConstants.MAX_PAGE_SIZE);
-        Page<ProductPreviewDto> pageProductPreviewDtos = productRepository.getPageProductPreviewDtos(pageable);
-        return new BaseResponse(ResponseValue.SUCCESS, pageProductPreviewDtos);
+        return productRepository.getPageProductPreviewDtos(pageable);
     }
 
-    public BaseResponse getProductDto(String productID) {
+    public ProductDto getProductDto(String productID) throws ResponseException {
         ProductDto productDto = productRepository.getProductDto(productID);
         if (productDto == null) {
-            return new BaseResponse(ResponseValue.PRODUCT_NOT_FOUND);
+            throw new ResponseException(ResponseValue.PRODUCT_NOT_FOUND);
         }
-        return new BaseResponse(ResponseValue.SUCCESS, productDto);
+        return productDto;
     }
 
-    public BaseResponse createNewProduct(NewProductDto newProductDto) {
+    public void createNewProduct(NewProductDto newProductDto) throws ResponseException {
         ProductType productType = productTypeRepository.findFirstById(newProductDto.getProductTypeID());
         if (productType == null) {
-            return new BaseResponse(ResponseValue.PRODUCT_TYPE_NOT_FOUND);
+            throw new ResponseException(ResponseValue.PRODUCT_TYPE_NOT_FOUND);
         }
         Product product = new Product(productType, newProductDto);
         productRepository.save(product);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 
-    public BaseResponse updateProduct(String productID, NewProductDto newProductDto) {
+    public void updateProduct(String productID, NewProductDto newProductDto) throws ResponseException {
         ProductType productType = productTypeRepository.findFirstById(newProductDto.getProductTypeID());
         if (productType == null) {
-            return new BaseResponse(ResponseValue.PRODUCT_TYPE_NOT_FOUND);
+            throw new ResponseException(ResponseValue.PRODUCT_TYPE_NOT_FOUND);
         }
         Product product = productRepository.findFirstById(productID);
         if (product == null) {
-            return new BaseResponse(ResponseValue.PRODUCT_NOT_FOUND);
+            throw new ResponseException(ResponseValue.PRODUCT_NOT_FOUND);
         }
         product.update(productType, newProductDto);
         productRepository.save(product);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 
-    public BaseResponse deleteProduct(String productID) {
+    public void deleteProduct(String productID) throws ResponseException {
         try {
             productRepository.deleteById(productID);
-            return new BaseResponse(ResponseValue.SUCCESS);
         } catch (EmptyResultDataAccessException e) {
-            return new BaseResponse(ResponseValue.PRODUCT_NOT_FOUND);
+            throw new ResponseException(ResponseValue.PRODUCT_NOT_FOUND);
         }
     }
 
-    public BaseResponse deleteListProducts(Set<String> productIDs) {
+    public void deleteListProducts(Set<String> productIDs) {
         productRepository.deleteAllByIdIn(productIDs);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 }

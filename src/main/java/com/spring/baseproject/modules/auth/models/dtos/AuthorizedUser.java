@@ -5,21 +5,23 @@ import java.util.Map;
 public class AuthorizedUser {
     private String userID;
     private String username;
-    private String clientID;
 
     public AuthorizedUser() {
     }
 
     public AuthorizedUser(Map<String, ?> map) {
-        this.userID = (String) map.get("user_id");
-        this.username = (String) map.get("user_name");
-        this.clientID = (String) map.get("client_id");
+        this((String) map.get("user_id"),
+                (String) map.get("user_name"));
     }
 
-    public AuthorizedUser(CustomUserDetail customUserDetail, String clientID) {
-        this.userID = customUserDetail.getUserID();
-        this.username = customUserDetail.getUsername();
-        this.clientID = clientID;
+    public AuthorizedUser(CustomUserDetail customUserDetail) {
+        this(customUserDetail.getUserID(),
+                customUserDetail.getUsername());
+    }
+
+    public AuthorizedUser(String userID, String username) {
+        this.userID = userID;
+        this.username = username;
     }
 
     public String getUserID() {
@@ -36,13 +38,5 @@ public class AuthorizedUser {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getClientID() {
-        return clientID;
-    }
-
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
     }
 }

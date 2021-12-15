@@ -2,10 +2,9 @@ package com.spring.baseproject.modules.auth.controllers;
 
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
-import com.spring.baseproject.base.controllers.BaseRESTController;
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.auth.models.dtos.NewUserDto;
 import com.spring.baseproject.modules.auth.services.UserRegistrationService;
 import io.swagger.annotations.Api;
@@ -18,7 +17,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/users/registration")
 @Api(description = "Tạo tài khoản người dùng")
-public class RegistrationController extends BaseRESTController {
+public class RegistrationController {
     @Autowired
     private UserRegistrationService userRegistrationService;
 
@@ -33,7 +32,7 @@ public class RegistrationController extends BaseRESTController {
             @Response(responseValue = ResponseValue.ROLE_NOT_FOUND)
     })
     @PostMapping()
-    public BaseResponse registerNewUser(@RequestBody @Valid NewUserDto newUserDto) {
-        return userRegistrationService.registerNewUser(newUserDto);
+    public void registerNewUser(@RequestBody @Valid NewUserDto newUserDto) throws ResponseException {
+        userRegistrationService.registerNewUser(newUserDto);
     }
 }

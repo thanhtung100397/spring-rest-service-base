@@ -1,7 +1,7 @@
 package com.spring.baseproject.modules.demo_auth.services;
 
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.demo_auth.models.dtos.UserDto;
 import com.spring.baseproject.modules.demo_auth.repositories.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +12,11 @@ public class UserProfileService {
     @Autowired
     private UserProfileRepository userProfileRepository;
 
-    public BaseResponse getUserProfile(String userID) {
+    public UserDto getUserProfile(String userID) throws ResponseException {
         UserDto userDto = userProfileRepository.getUserDto(userID);
         if (userDto == null) {
-            return new BaseResponse(ResponseValue.USER_NOT_FOUND);
+            throw new ResponseException(ResponseValue.USER_NOT_FOUND);
         }
-        return new BaseResponse<>(ResponseValue.SUCCESS, userDto);
+        return userDto;
     }
 }

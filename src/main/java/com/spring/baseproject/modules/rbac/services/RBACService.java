@@ -1,7 +1,7 @@
 package com.spring.baseproject.modules.rbac.services;
 
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.auth.models.entities.Role;
 import com.spring.baseproject.modules.auth.models.entities.RoleType;
 import com.spring.baseproject.modules.rbac.models.dtos.ApiDto;
@@ -30,14 +30,14 @@ public class RBACService {
     @Autowired
     private RBACRolesRepository RBACRoleRepository;
 
-    public BaseResponse getApis() {
+    public List<ApiModuleDto> getApis() {
         return getApiStructure(sort -> apiRepository.getAllApiWithFetchedFunctionAndModule(sort));
     }
 
-    public BaseResponse getApisOfRole(int roleID) {
+    public List<ApiModuleDto> getApisOfRole(int roleID) throws ResponseException {
         Role role = RBACRoleRepository.findFirstById(roleID);
         if (role == null) {
-            return new BaseResponse(ResponseValue.ROLE_NOT_FOUND);
+            throw new ResponseException(ResponseValue.ROLE_NOT_FOUND);
         }
         return getApiStructure(sort -> {
             if (role.getType() == RoleType.ROOT) {
@@ -52,7 +52,7 @@ public class RBACService {
         List<Api> queryApis(Sort sort);
     }
 
-    private BaseResponse getApiStructure(QueryApis queryApis) {
+    private List<ApiModuleDto> getApiStructure(QueryApis queryApis) {
         List<String> sortBy = new ArrayList<>();
         List<String> sortType = new ArrayList<>();
 
@@ -86,16 +86,16 @@ public class RBACService {
             currentApiFunctionDto.addApi(new ApiDto(api));
         }
 
-        return new BaseResponse<>(ResponseValue.SUCCESS, apiModulesDto);
+        return apiModulesDto;
     }
 
-    public BaseResponse updateApisForRole(int roleID, Set<Integer> apiIDs) {
+    public void updateApisForRole(int roleID, Set<Integer> apiIDs) throws ResponseException {
         Role role = RBACRoleRepository.getRoleWithFetchedApiWithFetchedRoles(roleID);
         if (role == null) {
-            return new BaseResponse(ResponseValue.ROLE_NOT_FOUND);
+            throw new ResponseException(ResponseValue.ROLE_NOT_FOUND);
         }
         if (role.getType() == RoleType.ROOT) {
-            return new BaseResponse(ResponseValue.CANNOT_MODIFY_ROOT_ACCESS_GRANT);
+            throw new ResponseException(ResponseValue.CANNOT_MODIFY_ROOT_ACCESS_GRANT);
         }
         Set<Api> roleApis = role.getApis();
         Set<Api> newApis;
@@ -118,6 +118,5 @@ public class RBACService {
             updatedApis.add(newApi);
         }
         apiRepository.saveAll(updatedApis);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 }

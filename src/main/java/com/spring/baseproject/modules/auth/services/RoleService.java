@@ -1,8 +1,8 @@
 package com.spring.baseproject.modules.auth.services;
 
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.base.models.PageDto;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.auth.models.dtos.NewRoleDto;
 import com.spring.baseproject.modules.auth.models.dtos.RoleDto;
 import com.spring.baseproject.modules.auth.models.entities.Role;
@@ -24,9 +24,9 @@ public class RoleService {
     @Autowired
     private JPAQueryExecutor jpaQueryExecutor;
 
-    public BaseResponse getRoles(RoleType queryRoleType,
-                                 List<String> sortBy, List<String> sortType,
-                                 int pageIndex, int pageSize) {
+    public PageDto<RoleDto> getRoles(RoleType queryRoleType,
+                                     List<String> sortBy, List<String> sortType,
+                                     int pageIndex, int pageSize) {
         JPAQueryBuilder<RoleDto> jpaQueryBuilder = new JPAQueryBuilder<>();
         jpaQueryBuilder.selectAsObject(RoleDto.class, "r.id", "r.name", "r.type")
                 .from(Role.class, "r");
@@ -35,40 +35,38 @@ public class RoleService {
         }
         jpaQueryBuilder.orderBy(sortBy, sortType);
         jpaQueryBuilder.setPagination(pageIndex, pageSize);
-        PageDto<RoleDto> queryResults = jpaQueryExecutor.executePaginationQuery(jpaQueryBuilder);
-        return new BaseResponse<>(ResponseValue.SUCCESS, queryResults);
+        return jpaQueryExecutor.executePaginationQuery(jpaQueryBuilder);
     }
 
-    public BaseResponse getRole(int roleID) {
-        RoleDto roleDto = roleRepository.getRoleDto(roleID);
-        if (roleDto == null) {
-            return new BaseResponse(ResponseValue.ROLE_NOT_FOUND);
+    public RoleDto getRole(int roleID) throws ResponseException {
+        RoleDto role = roleRepository.getRoleDto(roleID);
+        if (role == null) {
+            throw new ResponseException(ResponseValue.ROLE_NOT_FOUND);
         }
-        return new BaseResponse<>(ResponseValue.SUCCESS, roleDto);
+        return role;
     }
 
-    public BaseResponse createNewRole(NewRoleDto newRoleDto) {
+    public RoleDto createNewRole(NewRoleDto newRoleDto) throws ResponseException {
         try {
             Role role = new Role(newRoleDto);
             role = roleRepository.save(role);
-            return new BaseResponse<>(ResponseValue.SUCCESS, new RoleDto(role));
+            return new RoleDto(role);
         } catch (DataIntegrityViolationException e) {
-            return new BaseResponse(ResponseValue.ROLE_EXISTS);
+            throw new ResponseException(ResponseValue.ROLE_EXISTS);
         }
     }
 
-    public BaseResponse updateRole(int roleID, NewRoleDto newRoleDto) {
+    public RoleDto updateRole(int roleID, NewRoleDto newRoleDto) throws ResponseException {
         Role role = roleRepository.findFirstById(roleID);
         if (role == null) {
-            return new BaseResponse(ResponseValue.ROLE_NOT_FOUND);
+            throw new ResponseException(ResponseValue.ROLE_NOT_FOUND);
         }
         role.update(newRoleDto);
         role = roleRepository.save(role);
-        return new BaseResponse<>(ResponseValue.SUCCESS, new RoleDto(role));
+        return new RoleDto(role);
     }
 
-    public BaseResponse deleteRoles(Set<Integer> roleIDs) {
+    public void deleteRoles(Set<Integer> roleIDs) {
         roleRepository.deleteAllByIdIn(roleIDs);
-        return new BaseResponse(ResponseValue.SUCCESS);
     }
 }

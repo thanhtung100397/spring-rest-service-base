@@ -3,11 +3,11 @@ package com.spring.baseproject.modules.demo_auth.controllers;
 import com.spring.baseproject.annotations.auth.AuthorizationRequired;
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
-import com.spring.baseproject.base.controllers.BaseRESTController;
-import com.spring.baseproject.base.models.BaseResponse;
 import com.spring.baseproject.constants.ResponseValue;
+import com.spring.baseproject.exceptions.ResponseException;
+import com.spring.baseproject.modules.demo_auth.models.dtos.UserDto;
 import com.spring.baseproject.modules.demo_auth.services.UserProfileService;
-import com.spring.baseproject.swagger.demo_auth.UserDtoSwagger;
+import com.spring.baseproject.utils.auth.AuthUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @AuthorizationRequired
 @RequestMapping("/api/auth-demo/users")
 @Api(description = "Thông tin tài khoản")
-public class UserProfileController extends BaseRESTController {
+public class UserProfileController {
     @Autowired
     private UserProfileService userProfileService;
 
@@ -26,11 +26,10 @@ public class UserProfileController extends BaseRESTController {
                     "thực hiện xác thực người dùng bằng access token",
             response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = ResponseValue.SUCCESS, responseBody = UserDtoSwagger.class),
             @Response(responseValue = ResponseValue.USER_NOT_FOUND)
     })
     @GetMapping("/info")
-    public BaseResponse getUserProfile() {
-        return userProfileService.getUserProfile(getAuthorizedUser().getUserID());
+    public UserDto getUserProfile() throws ResponseException {
+        return userProfileService.getUserProfile(AuthUtils.getAuthorizedUser().getUserID());
     }
 }
