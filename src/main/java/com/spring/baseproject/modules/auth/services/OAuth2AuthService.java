@@ -3,6 +3,7 @@ package com.spring.baseproject.modules.auth.services;
 import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.auth.models.dtos.AuthenticationResult;
+import com.spring.baseproject.modules.auth.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,8 @@ public class OAuth2AuthService {
     private AuthorizationServerEndpointsConfiguration authorizationServerEndpointsConfiguration;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
     private final OAuth2RequestValidator oAuth2RequestValidator = new DefaultOAuth2RequestValidator();
 
@@ -91,11 +94,13 @@ public class OAuth2AuthService {
         }
         try {
             OAuth2AccessToken token = getTokenGranter().grant(tokenRequest.getGrantType(), tokenRequest);
-            return new AuthenticationResult(token.getTokenType(),
+            AuthenticationResult authResult = new AuthenticationResult(token.getTokenType(),
                     token.getValue(), token.getRefreshToken().getValue(),
                     token.getAdditionalInformation(),
                     accessTokenExpirationTime, refreshTokenExpirationTime
             );
+            userRepository.updateLastActive(authResult.getUserID(), new Date());
+            return authResult;
         } catch (InvalidGrantException e) {
             String errorMessage = e.getMessage();
             if (errorMessage.equals("Bad credentials")) {
