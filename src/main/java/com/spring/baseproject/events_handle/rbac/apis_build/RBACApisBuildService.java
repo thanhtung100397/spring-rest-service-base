@@ -21,7 +21,6 @@ import com.spring.baseproject.modules.rbac.repositories.ApiMethodRepository;
 import com.spring.baseproject.modules.rbac.repositories.ApiModuleRepository;
 import com.spring.baseproject.modules.rbac.repositories.ApiRepository;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
-import com.spring.baseproject.utils.base.PackageScannerUtils;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,8 @@ public class RBACApisBuildService implements ApplicationEventHandle {
     private String rootModulePackageName;
     @Value("${application.rbac.refresh:false}")
     private boolean isActive;
+    @Value("${application.modules-package.modules:false}")
+    private Set<String> allModules;
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -82,7 +83,6 @@ public class RBACApisBuildService implements ApplicationEventHandle {
     @Transactional(rollbackFor = Exception.class)
     public void handleEvent() throws Exception {
         String rootModulePackage = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
-        List<String> moduleNames = PackageScannerUtils.listAllSubPackages(rootModulePackage);
 
         List<Api> apis = null;
         Map<RoleType, Set<Role>> mapRoles = null;
@@ -129,7 +129,7 @@ public class RBACApisBuildService implements ApplicationEventHandle {
             }
 
             List<ApiModule> apiModules = apiModuleRepository.findAll();
-            apiModuleMap = new HashMap<>(moduleNames.size());
+            apiModuleMap = new HashMap<>(apiModules.size());
             for (ApiModule apiModule : apiModules) {
                 apiModuleMap.put(apiModule.getName(), apiModule);
                 ModuleDescriptionDto moduleDescriptionDto = moduleDescriptionsDto.get(apiModule.getName());
@@ -139,7 +139,7 @@ public class RBACApisBuildService implements ApplicationEventHandle {
                     moduleDescriptionsDto.remove(apiModule.getName());
                 }
             }
-            for (String moduleName : moduleNames) {
+            for (String moduleName : allModules) {
                 ApiModule existApiModule = apiModuleMap.get(moduleName);
                 if (existApiModule == null) {
                     ApiModule apiModule = new ApiModule();
@@ -156,7 +156,7 @@ public class RBACApisBuildService implements ApplicationEventHandle {
 
         List<Api> savedApis = new ArrayList<>();
         int totalNewApi = 0;
-        for (String moduleName : moduleNames) {
+        for (String moduleName : allModules) {
             ApiModule apiModule = null;
             if (apiModuleMap != null) {
                 apiModule = apiModuleMap.get(moduleName);

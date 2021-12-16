@@ -4,7 +4,6 @@ import com.fasterxml.classmate.TypeResolver;
 import com.spring.baseproject.components.base.JSONProcessor;
 import com.spring.baseproject.components.swagger.*;
 import com.spring.baseproject.constants.ApplicationConstants;
-import com.spring.baseproject.utils.base.PackageScannerUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,13 +30,12 @@ import java.util.*;
 public class SwaggerConfig {
     @Value("${application.swagger.info.path}")
     private String swaggerInfoPath;
-    @Value("${application.application.modules-package.name:modules}")
+    @Value("${application.modules-package.name:modules}")
     private String rootModulePackageName;
-
-    @Value("${server.port:8080}")
-    private int serverPort;
     @Value("${application.swagger.excluded-modules}")
     private Set<String> swaggerExcludedModules;
+    @Value("${application.modules-package.modules}")
+    private Set<String> allModules;
 
     @Autowired
     private JSONProcessor jsonProcessor;
@@ -84,8 +82,7 @@ public class SwaggerConfig {
     public void init() {
         ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory) beanFactory;
         String modulesPackageName = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
-        List<String> moduleNames = PackageScannerUtils.listAllSubPackages(modulesPackageName);
-        for (String moduleName : moduleNames) {
+        for (String moduleName : allModules) {
             if (!swaggerExcludedModules.contains(moduleName)) {
                 Docket moduleApiGroup = swaggerApiGroupBuilder.newSwaggerApiGroup(moduleName, modulesPackageName + "." + moduleName + ".controllers");
                 configurableBeanFactory.registerSingleton("swaggerApiGroup" + moduleName, moduleApiGroup);

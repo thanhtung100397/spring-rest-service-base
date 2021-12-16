@@ -8,7 +8,6 @@ import com.spring.baseproject.constants.ApplicationConstants;
 import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.auth.services.IAuthorization;
 import com.spring.baseproject.utils.base.JacksonObjectMapper;
-import com.spring.baseproject.utils.base.PackageScannerUtils;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     private String resourceID;
     @Value("${application.modules-package.name:modules}")
     private String rootModulePackageName;
+    @Value("${application.modules-package.modules}")
+    private Set<String> allModules;
 
     @Autowired
     private DefaultTokenServices tokenService;
@@ -98,11 +99,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         logger.info("Start scanning no authorization required routes...");
         NoAuthorizationRequiredRoutes noAuthorizationRequiredRoutes = new NoAuthorizationRequiredRoutes();
         String rootModulePackage = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
-        List<String> moduleNames = PackageScannerUtils.listAllSubPackages(rootModulePackage);
         Set<Class<? extends Annotation>> excludeAnnotations = new HashSet<>();
         excludeAnnotations.add(AuthorizationRequired.class);
         excludeAnnotations.add(RoleBaseAccessControl.class);
-        for (String moduleName : moduleNames) {
+        for (String moduleName : allModules) {
             int apiFound = 0;
             RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
                     null, excludeAnnotations,
