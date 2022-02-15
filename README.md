@@ -2,28 +2,26 @@
 `Develop by tungtt`  
 `Email: thanhtung100397@gmail.com`
 
-### GHI CHÚ
-- Project này yêu cầu thiết lập 'allow-bean-definition-overriding=true', do đó cần lưu ý KHÔNG tạo @Bean trùng lặp
-bởi chúng sẽ replace lẫn nhau, điều này có thể gây ra các bug hoặc nhầm lẫn khó hiểu
+### NOTED
+- This project require 'allow-bean-definition-overriding=true' configuration, so you should NOT create duplicated @Bean, due to the fact that they will replace each other, this may lead to some unexpected bugs
 
 ### PROJECT SETUP
-`LƯU Ý`: Đảm bảo `git`, `java 8` và `gradle v4.9` đã được cài đặt  
+`NOTE`: This project required `git`, `java 8` and `gradle v4.9`  
 
-###### 1. Clone project  
-- Download project với định dạng nén phù hợp từ gitlab về máy cá nhân và giải nén
+###### 1. Clone project
 
 ###### 2. Install dependencies  
 ```bash
 $ gradle dependencies
 ```
 
-###### 3. Run project (mục đích phát triển)
+###### 3. Run project (for development purpose)
 ```bash
 $ cd gradle bootRun
 ```
 
-###### 4. Xem Doc API  
-- Truy cập địa chỉ `http://<host>:<port>/swagger-ui.html` bằng trình duyệt
+###### 4. Visit API web page (Swagger UI)
+- Please visit `http://<host>:<port>/swagger-ui.html` by your prefered browser
 (ex: `http://localhost:8080/swagger-ui.html`)
 
 ###### 5. Run all test cases
@@ -37,35 +35,31 @@ $ cd spring-boot-rest-service
 $ gradle build
 ```  
 
-`LƯU Ý`:  
-- Trong quá trình build, gradle sẽ tiến hành chạy tất cả các test case của project (nếu có). 
-Quá trình build chỉ thành công khi tất cả các test case đều được pass  
-- Sau khi build thành công, file `.jar` sẽ được sinh ra tại đường dẫn 
-`<project root folder>/build/libs` 
+- After successful build, the output `.jar` file will be stored in `<project root folder>/build/libs` dir
 
-###### 7. Execute .jar (mục đích triển khai trên production)   
+###### 7. Execute .jar (for production deployment purpose)   
 ```bash
 $ java -jar <path/to/.jar>
 ```
 
 ### PROJECT MODIFY 
-###### 1. Set git remote repository cho project 
+###### 1. Edit new git remote repository for project 
 ```bash
 $ git init
 $ git remote add origin <your git remote repository>
 $ git remote -v
 ```
 
-###### 2. Thay đổi tên package name
-- Đổi package `src/main/java/com/spring/baseproject` thành `src/main/java/<tên/package/mới>`  
-- Cập nhật `rootProject.name` trong `settings.gradle`  
-- Cập nhật giá trị `group` trong `build.gradle`  
-- Cập nhật package name mới cho `BASE_PACKAGE_NAME` trong class `./constants/ApplicationConstants`  
-- Nếu project có sử dụng Spring Data JPA, cần rà soát lại toàn bộ các phương thức @Query có trong JpaRepository để 
-đổi lại package name mới, ex:  
+###### 2. Edit package name
+- Rename package `src/main/java/com/spring/baseproject` to `src/main/java/<your/new/package/name>`  
+- Edit `rootProject.name` in `settings.gradle` file to your new package name
+- Edit `group` in `build.gradle` file to your new package name 
+- Edit `BASE_PACKAGE_NAME` in class `./constants/ApplicationConstants` file to your new package name  
+- If this project using Spring Data JPA, you need to re-check all @Query annoation inside JpaRepository to find and replace by your package name, 
+for example:  
 ````java
 public interface ProductRepository extends JpaRepository<Product, String> {
-     @Query("select new com.spring.baseproject" +  // <-- cần đổi lại tên package name
+     @Query("select new com.spring.baseproject" +  // <-- need to edit to your new package name
             ".modules.demo_jpa.models.dtos.ProductPreviewDto(p.id, p.name, p.createdDate, p.tags, pt.id, pt.name) " +
             "from Product p " +
             "left join p.productType pt")
@@ -75,40 +69,36 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 ### PROJECT STRUCTURE  
 ##### I. STARTED  
-###### 1. Thành phần  
+###### 1. Components 
 ````
  - Spring started web (for REST)
  - Mockito JUnitTest (for unit test)
  - Springfox Swagger 2 (for Doc API)
  - Docker
  - Demo REST API
- - Demo unit test cho phần business logic @Service
+ - Demo unit test all services
 ````
 
 ###### 2. Cấu trúc thư mục
 ````
 .    
-├── readme_assets/                              # (CÓ THỂ XÓA) Folder chứa static resource (image,...) của README.md
+├── readme_assets/                              # (REMOVABLE) Folder contains static resources (image,...) of README.md
 ├── src/                                   
 │   └── main/                                
 │   │  ├── java/
-│   │  │  └── com/spring/baseproject/           # Package java source code của toàn bộ project
-│   │  │     ├── annotations                     # Chứa toàn bộ các custom @Annotation của project
-│   │  │     ├── base                            # Chứa toàn bộ các class base hoặc toàn cục của project
-│   │  │     │  ├── controllers                   # Chứa base controller class của project
-│   │  │     │  └── models                        # Chứa các model class base hoặc toàn cục của project
-│   │  │     ├── components                      # Chứa toàn bộ các custom @Component của project
-│   │  │     ├── configs                         # Chứa toàn bộ các runtime config của project
-│   │  │     ├── constants                       # Chứa toàn bộ các static constant value (ex: các giá trị text response, response code) của project
-│   │  │     ├── events_handle                   # Chứa toàn bộ các event trigger và handler (ex: ContextRefreshedEvent, ContextStartedEvent,...) của project
-│   │  │     ├── exceptions                      # Chứa toàn bộ các custom exception(s) của project
-│   │  │     ├── utils                           # Chứa toàn bộ các tools sử dụng trong project
-│   │  │     ├── swagger                         # Chứa toàn bộ các swagger model(s)
-│   │  │     │  ├── base
-│   │  │     │  └── demo                         # (CÓ THỂ XÓA) Chứa toàn bộ các swagger models của module `demo`
-│   │  │     │ 
-│   │  │     └── modules                         # (Core) Chứa toàn bộ các core business module trong project
-│   │  │        └── demo                         # (CÓ THỂ XÓA) Package được đặt theo tên module trong project
+│   │  │  └── com/spring/baseproject/           # Package source of project
+│   │  │     ├── annotations                     # Contains all project custom @Annotation
+│   │  │     ├── base                            # Contains all project base class
+│   │  │     │  ├── controllers                   # Contains all project base controller
+│   │  │     │  └── models                        # Contains all project base pojo model
+│   │  │     ├── components                      # Contains all project custom @Component
+│   │  │     ├── configs                         # Contains all project runtime configurations
+│   │  │     ├── constants                       # Contains all project static constant value (ex: text response, response code)
+│   │  │     ├── events_handle                   # Contains all project event trigger and handler (ex: ContextRefreshedEvent, ContextStartedEvent,...)
+│   │  │     ├── exceptions                      # Contains all project custom exceptions
+│   │  │     ├── utils                           # Contains all project tools, ultilities,...
+│   │  │     └── modules                         # (Core) Contains all project core business module
+│   │  │        └── demo                         # (REMOVABLE) Package for demo module
 │   │  │           ├── controllers                   
 │   │  │           ├── repositories                
 │   │  │           ├── services                   
@@ -116,69 +106,62 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 │   │  │              ├── dtos                     
 │   │  │              └── entities                
 │   │  │                                        
-│   │  └── resources/                           # Package chứa toàn bộ các static resources và các config của project
-│   │     ├── base/                               # Chứa các static resources mặc định
-│   │     ├── dev/                               # Chứa các static resources cho môi trường Development
-│   │     ├── prod/                              # Chứa các static resources cho môi trường Production
-│   │     ├── application.properties             # File config mặc định của project
-│   │     ├── application-dev.properties         # File config cho môi trường Developement (override file config mặc định)
-│   │     ├── application-prod.properties        # File config cho môi trường Production (override file config mặc định)
-│   │     └── swagger-info.json                  # File tùy chỉnh chứa một số info hiển thị trên trang swagger-ui.html
+│   │  └── resources/                            # Contains all project static resources
+│   │     ├── base/                               # Contains all project static resources in default
+│   │     ├── dev/                                # Contains all project static resources for Development env
+│   │     ├── prod/                               # Contains all project static resources for Production env
+│   │     ├── application.properties              # Default project static configuration file
+│   │     ├── application-dev.properties          # Developement env static configuration file (override default config file)
+│   │     ├── application-prod.properties         # Production env static configuration file (override file config mặc định)
+│   │     └── swagger-info.json                   # Static displayed info on swagger ui page configuration
 │   │
 │   └── test/                                                               
 │      └── java/                              
-│         └── com/spring/baseproject/           # Package chứa toàn bộ các unit test của project        
-│            └── demo                           # (CÓ THỂ XÓA) Package được đặt theo tên module tương ứng                   
-│               ├── controllers                   # Chứa tất cả các unit test(s) cho @RestController của module    
-│               ├── repositories                  # Chứa tất cả các unit test(s) cho @Repository của module  
-│               └── services                      # Chứa tất cả các unit test(s) cho @Service của module 
+│         └── com/spring/baseproject/           # Package contains all project unit test  
+│            └── demo                           # (REMOVABLE) Package for demo module unit test         
+│               ├── controllers                   # Contains all project unit tests for module @RestController   
+│               ├── repositories                  # Contains all project unit tests for module @Repository
+│               └── services                      # Contains all project unit tests for module @Service
 │                                                                               
-├── build.gradle                               # File khai báo dependencies và build config của gradle
-├── Dockerfile                                 # File Dockerfile để build Docker Image
-└── README.md   (CÓ THỂ XÓA)                   # File README 
+├── build.gradle                               # Dependencies and build configuration file by Gradle
+├── Dockerfile                                 # Dockerfile by Docker
+└── README.md   (CÓ THỂ XÓA)                   # README File 
 ````
 
-###### 3. Các thành phần có thể xóa  
-- Xem tại cấu trúc thư mục
-
-###### 4. Code structure  
-Project được thiết kế theo kiến trúc phân tẩng  
+###### 3. Project code structure  
 
 ![](readme_assets/project-structure.png)  
 
-**Controller** Định nghĩa các route mapping, viết Doc API (Swagger), input validation. `Controller` tương tác với `Service` để 
-xử lý nghiệp vụ và nhận kết quả trả về response cho client. Một `Controller` chỉ tương tác với một `Service`  
-**Service** Xử lý business logic của nghiệp vụ, tương tác với `Repository` để truy vấn dữ liệu từ database và trả kết quả  
-xử lý về `Controller`. Một `Service` có thể tương tác với nhiều `Repository`  
-**Repository** Tương tác với database để truy vấn hoặc persist data  
+**Controller** declares all project route mapping, provide Doc API (Swagger), input validation. `Controller` should interact with `Service` for main bussiness processing then response to client. One `Controller` should be coupled with one `Service`  
 
-Do đó, cấu trúc package của một module trong project được tổ chức như sau
+**Service** is the main business logic processor of project, which should interact with `Repository` to get and query data from datasource. One `Service` can interact with multiple other services, but should be with only one `Repository`  
+
+**Repository** interact with datasource for get, query or save data
+
+Therefore, the project package structure of one module will be
 ````
 .   .  .     .
-│   │  │     └── modules                         # (Core) Chứa toàn bộ các core business module trong project
-│   │  │        └── <tên module>                  # Một module trong project
-│   │  │           ├── controllers                 # Chứa toàn bộ các @RestController của module     
-│   │  │           ├── repositories                # Chứa toàn bộ các @Repository (ex: JPARepository, CrudRepository, MongoRepository, ...) của module
-│   │  │           ├── services                    # Chứa toàn bộ các @Service của module
-│   │  │           └── models                      # Chứa toàn bộ các model class của module
-│   │  │              ├── dtos                      # Chứa toàn bộ các DTO model class
-│   │  │              └── entities                  # Chứa toàn bộ các ORM model class (ex: @Entity của Spring Data JPA, @Document của Spring Data MongoDB,...)
+│   │  │     └── modules                         # (Core) Contains all project core business module
+│   │  │        └── <Module name>                  # Package with name by module name
+│   │  │           ├── controllers                 # Contains all project @RestController     
+│   │  │           ├── repositories                # Contains all project @Repository (ex: JPARepository, CrudRepository, MongoRepository, ...)
+│   │  │           ├── services                    # Contains all project @Service
+│   │  │           └── models                      # Contains all project pojo model class
+│   │  │              ├── dtos                      # Contains all project DTO model class
+│   │  │              └── entities                  # Contains all project ORM model class (ex: @Entity of Spring Data JPA, @Document of Spring Data MongoDB,...)
 │   │  │  
 .   .  .
 ````
 
 ###### 5. Swagger 2 - Code-gen Doc API  
-[Swagger](https://swagger.io) là một công cụ tạo API Document. Document được sinh tự động dựa trên code nên giúp tiết 
-kiệm thời gian viết tài liệu, dễ sửa đổi. Swagger sử dụng các `@Annotation` để scan toàn bộ source code trong project, 
-từ đó sẽ visualize Doc Api dưới dạng 1 web page gọi là swagger ui. Ngoài hiển thị, swagger ui còn cho phép tương tác 
-trực tiếp với các API, tuy nhiên các công cụ hỗ trợ thao tác thì còn khá hạn chế
+[Swagger](https://swagger.io) is an API Document auto-generated tool. The document will be generated by code automatically, therefore it's good for maintain and make your life easier. Swagger using java annotation to scan and find all declared route path of all project controller, then it will visualize Doc Api to one ui web page
 
-Sau khi run project, truy cập địa chỉ `http://<host>:<port>/swagger-ui.html` để vào swagger ui của project 
+After starting this project, visit `http://<host>:<port>/swagger-ui.html` on your browser to get access to swagger ui page
  
 ![](readme_assets/swagger-ui.png)  
 
-Project đã modify một số phần của Swagger để thuận tiện hơn cho quá trình phát triển, điều này chỉ làm thay đổi một 
-số chi tiết nhỏ so với tài liệu gốc của swagger. Dưới đây là cách sử dụng
+This project has been modified some aspect of Swagger for more practical development purpose, it made some minor changes to  
+some components behavior compare with the original swagger documentation. Here is the detail usage example
 ````java
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -187,14 +170,14 @@ import com.spring.baseproject.annotations.swagger.Responses;//Custom annotation
 
 @RestController
 @RequestMapping("/api/foo")
-@Api(description = "Mô tả ngắn gọn về nhóm api")
+@Api(description = "Simple description about this api group")
 class FooController extends BaseRESTController {
-    @ApiOperation(value = "Tên gọi/mô tả nghiệp vụ ngắn gọn của api",
-                notes = "Chú thích/giải thích/mô tả chi tiết về api (nếu cần)",
+    @ApiOperation(value = "Name of this api",
+                notes = "Note/explaination/detailed description about this api (if necessary)",
                 response = Iterable.class)
     @Responses(value = {
-            @Response(responseValue = ResponseValue.SUCCESS, responseBody = ResponseModelClass.class),//<- Loại class sẽ được api trả về (nếu cần)
-            @Response(responseValue = ResponseValue.FOO_NOT_FOUND)
+            @Response(responseValue = ResponseValue.SUCCESS, responseBody = ResponseModelClass.class),//<- POJO Class of api response (if have)
+            @Response(responseValue = ResponseValue.FOO_NOT_FOUND) //<- Enum response value (httpStatus, specialCode, message)
     })
     @GetMapping()
     public BaseResponse getFoos() {
@@ -204,33 +187,32 @@ class FooController extends BaseRESTController {
 ````
 
 `LƯU Ý`:
-- Swagger đã được tùy chỉnh để chỉ scan và visualize các @RestController nằm trong package `modules/<tên module>/controllers`, 
-do đó nên lưu ý đặt các @Controller vào đúng vị trí
-- Các `ResponseValue` có cùng `specialCode` sẽ replace lẫn nhau khi hiển thị trên swagger ui, do đó nên lưu ý không tạo 
-hai `ResponseValue` khác nhau có cùng chung một `specialCode`  
+- IN THIS PROJECT, Swagger was modified to ONLY SCAN ALL @RestController inside project every package `modules/<Module name>/controllers`, 
+therefore you must be aware to put all @RestController to correct package position (if not, you will not see your api displayed on swagger ui page)
+- Each `ResponseValue` with the same `specialCode` will replace each other when displayed on swagger ui, so you should not  
+create 2 difference `ResponseValue` with the same `specialCode` value  
 
 ##### II. SPRING DATA JPA  
-[Spring Data JPA](https://spring.io/projects/spring-data-jpa) (Java Persistence API) là một thư viên của `Spring Data`, thuộc `Spring Framework`. Với mục đích là đơn giản hóa 
-việc thao tác với datasource từ code. Hạn chế việc phải implement nhiều tầng data access khác nhau với mỗi datasource khác nhau. 
-JPA cũng cấp một ngôn ngữ truy vấn khá tương đồng với `SQL`, được gọi là `JPAQL`. Khi thực thi, `JPAQL` sẽ tự động được transform sang native 
-query phù hợp với mỗi datasource được sử dụng
+[Spring Data JPA](https://spring.io/projects/spring-data-jpa) (Java Persistence API) là a library of group `Spring Data`, belong to `Spring Framework`. It help 
+the datasource interaction in code more simplier and easier for maintain. You don't need to implement every unique data access instance for each type of difference datasources. 
+JPA provides a data query language similar with `SQL`, called `JPAQL`. In execution, `JPAQL` will be transformed to correct native SQL query of each used datasource
 
-Trong tài liệu này chỉ hướng dẫn cách setup JPA với datasource là MySQL
+This document will only show JPA setup instructions with MySQL datasource
 
-###### 1. Thành phần  
+###### 1. Components
 ````
  - Started Project
  - Spring Data JPA
 ```` 
 
-###### 2. Cấu trúc thư mục  
+###### 2. Package structure
 ````
 .   .  .     .
 │   │  │     ├── utils                           
-│   │  │     .  └── jpa                       # (NEW) Thêm util hỗ trợ phân trang query      
+│   │  │     .  └── jpa                       # (NEW) Add util support pagination query      
 .   .  .    .
 │   │  │     ├── swagger                      
-│   │  │     │  └── demo_jpa                  # (NEW)(CÓ THỂ XÓA) Thêm các swagger model cho module [demo_jpa]
+│   │  │     │  └── demo_jpa                  # (NEW)(REMOVABLE) Thêm các swagger model cho module [demo_jpa]
 .   .  .    .
 │   │  │    └── modules  
 .   .  .        .                       
