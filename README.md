@@ -193,9 +193,8 @@ therefore you must be aware to put all @RestController to correct package positi
 create 2 difference `ResponseValue` with the same `specialCode` value  
 
 ##### II. SPRING DATA JPA  
-[Spring Data JPA](https://spring.io/projects/spring-data-jpa) (Java Persistence API) là a library of group `Spring Data`, belong to `Spring Framework`. It help 
-the datasource interaction in code more simplier and easier for maintain. You don't need to implement every unique data access instance for each type of difference datasources. 
-JPA provides a data query language similar with `SQL`, called `JPAQL`. In execution, `JPAQL` will be transformed to correct native SQL query of each used datasource
+[Spring Data JPA](https://spring.io/projects/spring-data-jpa) (Java Persistence API) is a library of group `Spring Data`, which belong to `Spring Framework`. It help 
+the datasource interaction in your code more simplier and life easier. With it, you won't need to implement manually every single data access instance for each type of difference datasources. To archive this, JPA provides its own data query language, quite similar with `SQL`, which is called `JPAQL`. In execution, `JPAQL` will be transformed to correct native SQL query of each used datasource
 
 This document will only show JPA setup instructions with MySQL datasource
 
@@ -207,16 +206,13 @@ This document will only show JPA setup instructions with MySQL datasource
 
 ###### 2. Package structure
 ````
-.   .  .     .
-│   │  │     ├── utils                           
-│   │  │     .  └── jpa                       # (NEW) Add util support pagination query      
 .   .  .    .
-│   │  │     ├── swagger                      
-│   │  │     │  └── demo_jpa                  # (NEW)(REMOVABLE) Thêm các swagger model cho module [demo_jpa]
+│   │  │    ├── utils                           
+│   │  │    |   └── jpa                       # (NEW) Add util support pagination query      
 .   .  .    .
 │   │  │    └── modules  
 .   .  .        .                       
-│   │  │        └── demo_jpa                  # (CÓ THỂ XÓA) Code demo Spring Data JPA                   
+│   │  │        └── demo_jpa                  # (REMOVABLE) Module demo for Spring Data JPA                   
 │   │  │           ├── controllers                                
 │   │  │           ├── repositories                
 │   │  │           ├── services                   
@@ -226,17 +222,14 @@ This document will only show JPA setup instructions with MySQL datasource
 │   │  │                                        
 │   │  └── resources/                          
 .   .     .
-│   │     ├── application.properties          # (MODIFIED) Thêm config datasource và Hibernate ORM
+│   │     ├── application.properties          # (MODIFIED) Add some configs for datasource and Hibernate ORM
 │   .      .
 │                                                                     
-├── build.gradle                              # (MODIFIED) Thêm dependency
+├── build.gradle                              # (MODIFIED) Add Spring Data dependencies
 .
 ````
 
-###### 3. Các thành phần có thể xóa  
-- Xem tại cấu trúc thư mục  
-
-###### 4. Gradle dependency  
+###### 3. Gradle dependency  
  ````
  ...
  dependencies {
@@ -248,8 +241,8 @@ This document will only show JPA setup instructions with MySQL datasource
  }
  ````
 
-###### 5. Configuration  
-Cấu hình JPA được đặt trong `application.properties`  
+###### 4. Configuration  
+All The JPA configurations were in `application.properties` file  
 ````
 ...
 # [jpa] JPA configuration
@@ -262,18 +255,16 @@ spring.datasource.username=(datasource username)     # username truy cập datas
 spring.datasource.password=(datasource password)     # password truy cập datasource
 
 # [jpa] JPA query logging configuration
-spring.jpa.show-sql=(true|false)     # Log trên console native query được tranform từ JPAQL mỗi khi một truy vấn được thực thi
-spring.jpa.properties.hibernate.format_sql=(true|false)     # Làm đẹp native query được log trên console
+spring.jpa.show-sql=(true|false)     # Enable console log for native query which was the transformation result of JPAQL every query execution
+spring.jpa.properties.hibernate.format_sql=(true|false)     # Enable native query beautifier on console log
 ...
 ````
 
-###### 6. Hướng tiếp cận  
+###### 5. Datasource Approaching Method
 ###### Code first  
-Module `demo_jpa` được phát triển theo hướng tiếp cận này. Tư tưởng của `Code first` là sử dụng code để có thể kiểm soát 
-mọi hoạt động của database, từ việc tạo, cập nhật schema, các quan hệ cho đến thực hiện các truy vấn. Như vậy developer 
-sẽ không cần phải làm việc trực tiếp với dbms
+This module `demo_jpa` was currently implemented by this approaching method. The main concept of `Code first` method is using only code to control all actions, structures of datasource interaction, from create, update schema, entity relationships to query execution. This abstraction will help developer focus to only main bussiness of application than care about used datasource or dbms
 
-Để enable chế độ này, cần set lại giá trị cho biến config sau trong `application.properties`
+To enable this `Code first` approaching method, you should edit this config value below inside (in `application.properties` file) to like this
 ````
 ...
 spring.jpa.hibernate.ddl-auto=(create|update|create-drop)
@@ -281,61 +272,39 @@ spring.jpa.hibernate.ddl-auto=(create|update|create-drop)
 ````
 
 ###### Database first  
-Trái ngược với `Code first`, tư tưởng của `Database first` là việc database phải được tạo xong từ trước, sau đó JPA 
-chỉ đóng vai trò mapping giữa các table trong databse vào các thực thể `Entity` trong code. `Database first` nên được 
-sử dụng khi dữ liệu cần được ràng buộc chặt chẽ ở tầng cơ sở dữ liệu
+Opposite from `Code first`, the key concept of `Database first` method is the database design must be done at first, then JPA 
+is just used as a mapping method between all data unit of datasource to every `Entity` instance in code.
 
-Để enable chế độ này, cần set lại giá trị cho biến config sau trong `application.properties`
+To enable this approaching method, just edit this config value below (in `application.properties` file) to like this
 ````
 ...
 spring.jpa.hibernate.ddl-auto=none
 ...
 ````
 
-Và chắc chắn rằng schema đã được tạo, nếu không JPA sẽ báo lỗi binding tại thời điểm runtime
+And please make sure your datasouorce schema was created from start
 
-###### 7. JPA Dynamic Query
-JPA mặc định hỗ trợ một cách thức tao JPAQL, đó định nghĩa trực tiến query bên trong interface `JPARepository`. 
-Tuy nhiên cách thức này lại mang đến một sự hạn chế, đó là khả năng tùy chỉnh các query dựa theo từng trường hợp khác nhau.
-
-Ex: Tạo api lấy sách nhân viên, có hỗ trợ lọc theo `Họ`, `Tên`, `Ngày sinh`, `Chức vụ`. Vì là lọc nên các thông tin 
-trên đều ở trạng thái optional, có thể có mà cũng có thể không được truyền lên. Do đó query truy vấn cũng sẽ thay đổi 
-truy theo số lượng tham số được truyền lên. Việc định nghĩa query trong `JPARepository` lúc này không còn khả quan
-
-Thật may là JPA có hỗ trợ việc tạo các JPAQL dưới dạng raw string và truyền vào một đối tượng Executor để thực thi 
-truy vấn, truy nhiên làm việc với raw string query thì thực sự rất phiền phức, dễ lỗi cú pháp, ngoài ra còn tiểm tàng 
-nguy cơ dính phải SQLInjection nếu thiếu cẩn thận
-
-`JPA Dynamic Query` là một tool được tạo ra để giải quyết các vấn đề trên, tool chỉ có nhiện vụ hỗ trợ sinh raw query string 
-tự động theo ý lập tình viên, giảm thiểu lỗi cú pháp và lỗi bảo mật.
-
-Tool được đặt tại `utils/jpa` và chỉ gồm hai thành phần: 
-- `JPAQueryBuilder` giúp sinh raw query string
-- `JPAQueryExecutor` giúp thực thi raw query được sinh ra bởi `JPAQueryBuilder`. Có hỗ trợ truy vấn phân trang
-
-Tài liệu hướng dẫn các sử dụng có thể tham khảo tại [đây](https://gitlab.com/worksvn-dev-team/developer-tools/jpa-query-builder)
-
-###### 8. Demo JPA  
+###### 6. Demo JPA  
 
 ![](readme_assets/demo_jpa_schema.png)
 
-**Product** Sản phầm, bao gồm: mã định danh (id), tên (name), loại size (product_size), thẻ (tags), 
-product_type_id (mã loại sản phẩm) , mô tả (description), ngày tạo (created_date)  
+**Product** identify code (id),  product name (name), size type (product_size), hashtag (tags), 
+type id (product_type_id) , product description (description), product created date (created_date)  
 
-Cấu trúc của một `Product` trong JPA
+This is the sample of `Product` Entity class in JPA
 ````java
 @Entity
 @Table(name = "product")
 public class Product {
     @Id
-    @GenericGenerator(name = "uuid", strategy = "uuid2")// uuid tự sinh
+    @GenericGenerator(name = "uuid", strategy = "uuid2")// auto generated uuid
     @GeneratedValue(generator = "uuid")
     @Column(name = "id", length = 36)
     private String id;
     @Column(name = "name", nullable = false)
     private String name;
     @Enumerated(EnumType.STRING)
-    @Column(name = "product_size", columnDefinition = "TEXT")// sử dụng enum
+    @Column(name = "product_size", columnDefinition = "TEXT")// using enum for product size
     private ProductSize productSize;
     @Column(name = "created_date")
     private Date createdDate;
@@ -345,7 +314,7 @@ public class Product {
     @Convert(converter = JsonListConverter.class)
     private List<String> tags;
 
-    @OneToOne( // quan hệ 1 - 1 với ProductType
+    @OneToOne( // 1 - 1 relationship with ProductType entity
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             orphanRemoval = true
@@ -359,15 +328,15 @@ public enum ProductSize {
 }
 ````
 
-**ProductType** Loại sản phẩm, bao gồm: mã định danh (id), tên (name)  
+**ProductType** identity code (id), product type name (name)  
 
-Cấu trúc của một `ProductType` trong JPA
+This is the sample of `ProductType` Entity class in JPA
 ````java
 @Entity
 @Table(name = "product_type")
 public class ProductType {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)// id tự động tăng
+    @GeneratedValue(strategy = GenerationType.IDENTITY)// auto increasement id
     @Column(name = "id")
     private int id;
     @Column(name = "name", nullable = false)
@@ -375,61 +344,52 @@ public class ProductType {
 }
 ````
 
-Truy cập swagger-ui để xem danh sách cách api demo  
+Please visit swagger ui for api demo  
 
-###### 9. Uninstall  
-- Xóa các nhóm được comment `[jpa]` trong 02 file `application.properties` và `build.gradle`
-- Xóa 03 package:
+###### 7. How to remove
+- Remove all group with prefix `[jpa]` in `application.properties` and `build.gradle` file
+- Remove all these packages:
  + `utils/jpa`
  + `modules/demo_jpa`
- + `swagger/demo_jpa`
 
 ##### III. Spring Security + OAuth2 + JWT  
-[OAuth2](https://oauth.net) là một phương thức chứng thực. Nhờ nó, một web service hay một application 
-bên thứ 3 (third-party) có thể đại diện cho người dùng để truy cập vào tài nguyên của họ nằm trên một dịch vụ nào đó  
+[OAuth2](https://oauth.net) is one of popular authentication method. With it, a web service or an third-party application can be on behalf of end users to access to every their owned resources on server belong to other service providers, to archive this, your application need to acquire authorization grants from end users via target service provider. 
 
-![Mô hình OAuth2](readme_assets/oauth2.png)
+![OAuth2](readme_assets/oauth2.png)
 
-[JWT](https://jwt.io) là một chuẩn mở (RFC 7519) định nghĩa một cách nhỏ gọn và khép kín để truyền một cách an toàn 
-thông tin giữa các bên dưới dạng đối tượng JSON. Thông tin này có thể được xác minh và đáng tin cậy vì nó có chứa 
-chữ ký số. JWTs có thể được ký bằng một thuật toán bí mật (với thuật toán HMAC) hoặc một public / private key 
-sử dụng mã hoá RSA.
+[JWT](https://jwt.io) `JSON Web Token (JWT) is an open standard (RFC 7519) that defines a compact and self-contained way for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed. JWTs can be signed using a secret (with the HMAC algorithm) or a public/private key pair using RSA or ECDSA.`
 
-Module này yêu cầu Spring Data JPA, do cần lưu trữ dữ liệu người dùng
+Ths module requires Spring Data JPA to save user data
 
-###### 1. Thành phần   
+###### 1. Components   
 ````
  - Started Project
- - Spring Data JPA (for storing user info)
+ - Spring Data JPA (for save user data)
  - Spring starter security
  - OAuth2
  - JWT (Json Web Token)
 ```` 
 
-###### 2. Cấu trúc thư mục  
+###### 2. Package structure
 ````
 .   .  .    .
 │   │  │    ├── annotations                           
-│   │  │    │  └── auth                      # (NEW) Thêm annotation @AuthorizationRequired
+│   │  │    │  └── auth                      # (NEW) Add annotation @AuthorizationRequired
 │   │  │    │
 │   │  │    ├── components                           
-│   │  │    │  └── auth                      # (NEW) Thêm hai component custom swagger-ui
+│   │  │    │  └── auth                      # (NEW) Add 2 custom swagger-ui components
 │   │  │    │
 │   │  │    ├── utils                           
-│   │  │    │  └── auth                      # (NEW) Thêm util hỗ trợ scan các mapping route 
+│   │  │    │  └── auth                      # (NEW) Add util to support scan all mapping api route 
 │   │  │    │
 │   │  │    ├── configs                           
-│   │  │    │  └── auth                      # (NEW) Thêm các runtime config cho OAuth2, JWT và Swagger   
+│   │  │    │  └── auth                      # (NEW) Add some runtime configs for OAuth2, JWT and Swagger   
 │   │  │    │
 │   │  │    ├── exceptions                           
-│   │  │    │  └── auth                      # (NEW) Thêm một số custom exception của OAuth2       
-│   │  │    │
-│   │  │    ├── swagger    
-│   │  │    │  ├── auth                      # (NEW) Thêm các swagger model cho module [auth]                  
-│   │  │    │  └── demo_auth                 # (NEW)(CÓ THỂ XÓA) Thêm các swagger model cho module [demo_auth]
+│   │  │    │  └── auth                      # (NEW) Add some custom exceptions for OAuth2       
 │   │  │    │
 │   │  │    └── modules  
-│   │  │        └── auth                     # (NEW) Module xác thực (authentication) người dùng                
+│   │  │        └── auth                     # (NEW) Module authentication/authorization for user                
 │   │  │        │   ├── controllers                                
 │   │  │        │   ├── repositories                
 │   │  │        │   ├── services                   
@@ -437,7 +397,7 @@ Module này yêu cầu Spring Data JPA, do cần lưu trữ dữ liệu người
 │   │  │        │      ├── dtos                     
 │   │  │        │      └── entities   
 │   │  │        │              
-│   │  │        └── demo_auth                # (CÓ THỂ XÓA) Code demo api lấy thông tin người dùng yêu cầu xác thực               
+│   │  │        └── demo_auth                # (REMOVABLE) Module demo for get user perfonal info which is required user authorization               
 │   │  │           ├── controllers                                
 │   │  │           ├── repositories                
 │   │  │           ├── services                   
@@ -446,18 +406,15 @@ Module này yêu cầu Spring Data JPA, do cần lưu trữ dữ liệu người
 │   │  │              └── entities                
 │   │  │                                        
 │   │  └── resources/                          
-│   │     └── application.properties        # (MODIFIED) Thêm config OAuth2, JWT
+│   │     └── application.properties        # (MODIFIED) Add config for OAuth2, JWT
 │   . 
 .   .  
 │                                                                     
-├── build.gradle                            # (MODIFIED) Thêm dependency
+├── build.gradle                            # (MODIFIED) Add Spring Security, JWT, OAuth2 dependency
 .
 ````
 
-###### 3. Các thành phần có thể xóa  
-- Xem tại cấu trúc thư mục  
-
-###### 4. Gradle dependency  
+###### 3. Gradle dependency  
  ````
  ...
  dependencies {
@@ -472,47 +429,47 @@ Module này yêu cầu Spring Data JPA, do cần lưu trữ dữ liệu người
  }
  ````
 
-###### 5. Configuration  
-Cấu hình OAuth2 + JWT được đặt trong `application.properties`  
+###### 4. Configuration  
+All the confgurations for OAuth2 + JWT is in `application.properties` file  
 ````
 ...
 # [auth] OAuth2 + JWT for Authentication and Authorization configuration
-application.oauth2.resource-server.id=oauth2_resource_server_id        # id của resource server trong mô hình OAuth2
-application.oauth2.authorization-server.trusted-client.web.id=trusted_client                 # id của client application trong mô hình OAuth2
-application.oauth2.authorization-server.trusted-client.web.secret=trusted_client_secret      # mã bí mật của client application trong mô hình OAuth2
-application.oauth2.authorization-server.access-token.validity-seconds=604800     # thời gian hiệu lực (giây) của access token được sinh
-application.oauth2.authorization-server.refresh-token.validity-seconds=5184000   # thời gian hiệu lực (giây) của refresh token được sinh
-application.oauth2.authorization-server.token-signing-key=secret_sgn_key         # mã bí mật dùng để làm token signature
-application.security.password-hashing=noop      # thuật toán hash password được áp dụng (bcypt, pbkdf2, scrypt, sha256). giá trị `noop` là không áp dụng thuật toán hashing
+application.oauth2.resource-server.id=oauth2_resource_server_id        # id of resource server
+application.oauth2.authorization-server.trusted-client.web.id=trusted_client                 # client id of client application
+application.oauth2.authorization-server.trusted-client.web.secret=trusted_client_secret      # client secret of client application
+application.oauth2.authorization-server.access-token.validity-seconds=604800     # the validity duration in seconds of generated access token
+application.oauth2.authorization-server.refresh-token.validity-seconds=5184000   # the validity duration in seconds of generated refresh token
+application.oauth2.authorization-server.token-signing-key=secret_sgn_key         # the secret code using for create token signature
+application.security.password-hashing=noop      # the password hashing algorithm (bcypt, pbkdf2, scrypt, sha256) was applied. the value `noop` is mean: no password hashing                                                         algorithm (for development/testing purpose - should not using on production)
 ...
 ````
 
-###### 6. Tính năng
-`Note`: Xem chi mô tả chi tiết tại swagger-ui  
-Module `auth` cung cấp các tính năng  
-**I. Đăng ký (Registration)**  
-1. Đăng ký người dùng mới
+###### 5. Features
+`Note`: Please visit swagger ui page for more api detail and try out 
+The module `auth` will provide some features below
+
+**I. User registration**  
+1. New user registration
     ````
         PATH: /api/users/registration
         METHOD: POST
         REQUEST BODY:
         {
-            "username": <tên đăng nhập người dùng>,
-            "password": <mật khẩu người dùng>,
-            "roleID": <quyền của người dùng (chưa impliment), để null>
+            "username": <user username>,
+            "password": <user password>
         }
     ````
-**II. Xác thực người dùng (Authentication)**  
-1. Xác thực bằng username password
+**II. User authentication**  
+1. User authentication by username password
     ````
         PATH: /api/authentication/username-password
         METHOD: POST
         REQUEST HEADER: 
-            - Authorization: Basic <Base64(<id của client application>:<mã bí mật của client application>)>
+            - Authorization: Basic <Base64(<client id>:<client secret>)>
         REQUEST BODY:
         {
-            "username": <tên đăng nhập người dùng>,
-            "password": <mật khẩu người dùng>
+            "username": <user username>,
+            "password": <user password>
         }
     ````
     Ex:  
@@ -526,44 +483,44 @@ Module `auth` cung cấp các tính năng
             "password": "123456"
         }
     ````
-    Response khi xác thực thành công sẽ có dạng  
+    The response body after successful verification will be  
     ````
     {
         "code": 200,
-        "msg": "thành công",
+        "msg": "success",
         "data": {
-            "userID": <id của người dùng>,
-            "tokenType": <loại của token>,
-            "jti": <một mã uuid định danh của token>,
-            "accessToken": <access token của người dùng>
-            "refreshToken": <refresh token của người dùng>
-            "accessTokenExpSecs": <thời gian hiệu lực của access token (giây)>,
-            "refreshTokenExpSecs": <thời gian hiệu lực của refresh token (giây)>
+            "userID": <id of user>,
+            "tokenType": <type of generated token>,
+            "jti": <id of generated token>,
+            "accessToken": <user access token>
+            "refreshToken": <user refresh token>
+            "accessTokenExpSecs": <access token validity duration in seconds>,
+            "refreshTokenExpSecs": <refresh token validity duration in seconds>
         }
     }
     ````    
 
-2. Xác thực bằng refresh token  
+2. User authentication by refresh token  
     ````
         PATH: /api/authentication/refresh-token
         METHOD: POST
         REQUEST HEADER: 
-            - Authorization: Basic <Base64(<id của client application>:<mã bí mật của client application>)>
+            - Authorization: Basic <Base64(<client id>:<client secret>)>
         REQUEST BODY:
         {
-            "refreshToken": <refresh token còn hiệu lực của người dùng>
+            "refreshToken": <user active refresh token>
         }
     ````
-    Response khi xác thực thành công có dạng giống như `Xác thực bằng username password`  
+    The response after successful verification will be the same as `User authentication by username password`
     
-**III. Truy cập yêu cầu xác thực người dùng**
-1. Lấy thông tin tài khoản người dùng (demo_auth)   
-    Api này trả về thông tin tài khoản người dùng, yêu cầu xác thực người dùng trước trước khi trả về dữ liệu  
+**III. Access required user authorization**
+1. Get user personal info (demo_auth)   
+    This Api will return user personal info, but it required user authorization (by access token)
     ````
         PATH: /api/auth-demo/users/info
         METHOD: GET
         REQUEST HEADER: 
-            - Authorization: <loại của token> <access token của người dùng>
+            - Authorization: <token type> <user access token>
     ````
     Ex:
     ````
@@ -577,24 +534,24 @@ Module `auth` cung cấp các tính năng
     ````
     
 
-###### 7. Dành cho người phát triển
-**I. Sử dụng annotation `@AuthorizationRequired`**  
+###### 7. For developer
+**I. Using `@AuthorizationRequired` annotation**  
 
-Annotation này được sử dụng để dánh dấu các api hay một nhóm api nào đó là `Truy cập yêu cầu xác thưc người dùng`
+This annotation was used to mark one api / api group as `access is required user authorization`
 ````java
 
-@AuthorizationRequired    // <- annotate vào controller để đánh dấu tất cả các api bên trong controller này 
-@RestController           //    đêu yêu cầu xác thực người dùng khi truy cập
+@AuthorizationRequired    // <- annotate to controller class to apply to all api inside this controller 
+@RestController           //    which required user authorization for access
 @RequestMapping("/api/auth-demo/users")
-@Api(description = "Thông tin tài khoản")
+@Api(description = "User account information")
 public class UserProfileController extends BaseRESTController {
 
     @Autowired
     private UserProfileService userProfileService;
 
-    @ApiOperation(value = "Lấy thông tin tài khoản",
-            notes = "Trả về toàn bộ các thông tin tài khoản của người dùng, " +
-                    "thực hiện xác thực người dùng bằng access token",
+    @ApiOperation(value = "Get user personal info",
+            notes = "Return user all personal information, " +
+                    "Required user authorization by access token",
             response = Iterable.class)
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = UserDtoSwagger.class),
@@ -602,13 +559,10 @@ public class UserProfileController extends BaseRESTController {
     })
     @GetMapping("/info")
     public BaseResponse getUserProfile() {
-        return userProfileService.getUserProfile(getAuthorizedUser().getUserID()); // <- lấy thông tin của người dùng 
-                                                                                   //    sau khi token đã được xác minh
+        return userProfileService.getUserProfile(getAuthorizedUser().getUserID());
     }
     
-                             //     annotate vào method để đánh dấu api này yêu cầu xác thực người dùng, 
-                             //     trường hợp nếu đã annotate ở controller rồi thì không cần thiết phải 
-    @AuthorizationRequired   // <-  annoate ở method
+    @AuthorizationRequired   // <-  or you can annotate to every single api
     @GetMapping("/foo/bar")
     public BaseResponse getFooBar() {
         return new BaseResponse(ResponseValue.SUCCESS);
@@ -616,73 +570,62 @@ public class UserProfileController extends BaseRESTController {
 }
 ````
 
-**II. Gọi các api yêu cầu xác thực trên swagger-ui**
+**II. How to verify user authorization on swagger-ui**
 
-Đối với các api `Truy cập yêu cầu xác thưc người dùng`, khi được visualize trên swagger-ui sẽ có ký hiệu cảnh báo để 
-thông báo cần xác thực người dùng trước khi thực hiện gọi
+For all user authorization required apis, when visualized on swagger ui page, it will have a red warning icon on the top right of api detail
 
 ![](readme_assets/swagger-ui-auth-warning.png)
 
-Để gọi được những api loại này trên swagger-ui, làm theo hướng dẫn sau
+To verify user authorization by token, please take a look at the instruction on the image below step by step
 
 ![](readme_assets/swagger-ui-auth-pass-warning.png)
 
-###### 8. Uninstall  
-- Xóa các nhóm được comment `[auth]` trong 02 file `application.properties` và `build.gradle`
-- Xóa 09 package:
+###### 8. How to remove  
+- Remove all group with comment prefix `[auth]` in `application.properties` and `build.gradle` file
+- Remove all packages:
   + `modules/auth`
   + `modules/demo_auth`
-  + `swagger/auth`
-  + `swagger/demo_auth`
   + `configs/demo_auth`
   + `utils/auth`
   + `exceptions/auth`
   + `annotations/auth`
   + `components/auth`
   
-##### IV. Điều khiển truy cập trên cơ sở vai trò - Role-base Access Control  
-[Điều khiển truy cập trên cơ sở vai trò](https://vi.wikipedia.org/wiki/Điều_khiển_truy_cập_trên_cơ_sở_vai_trò) 
-(Role-Based Access Control - viết tắt là RBAC) là một trong số các phương pháp điều khiển và đảm bảo quyền sử dụng 
-cho người dùng
+##### IV. Role-base Access Control  
+[Role-base Access Control  ](https://en.wikipedia.org/wiki/Role-based_access_control) 
+`(Role-Based Access Control - RBAC)  is an approach to restricting system access to authorized users`
 
-Trong nội bộ một tổ chức, các vai trò (các Role) được kiến tạo để đảm nhận các chức năng công việc khác nhau. Mỗi vai trò 
-được gắn liền với một số quyền hạn cho phép nó thao tác một số hoạt động cụ thể (các Api). Những người dùng trong hệ thống (các User) 
-được phân phối một vai trò riêng, và thông qua việc phân phối vai trò này mà họ tiếp thu được một số những quyền hạn cho 
-phép họ thi hành những chức năng cụ thể trong hệ thống.
+In an organization, there are multiple Role which was created to control and limit actions of each person. Every role was binding to some specific permissions, each permission will represent to one action. Every person will be assigned to one role, so they can do some in-controled action in one system.
 
 ![](readme_assets/RBAC-diagram.png)
 
-RBAC trong project này được phát triển dựa trên module `Spring Security + OAuth2 + JWT`
+RBAC in this project was implemented using the base of module `Spring Security + OAuth2 + JWT`
 
-###### 1. Thành phần   
+###### 1. Components  
 ````
  - Started Project
- - Spring Data JPA (for storing role - api)
+ - Spring Data JPA (for save role - api)
  - Spring Security + OAuth2 + JWT  
  - Role base access control
 ```` 
 
-###### 2. Cấu trúc thư mục  
+###### 2. Package structure
 ````
 .   .  .    .
 │   │  │    ├── annotations                           
-│   │  │    │  └── rbac                      # (NEW) Thêm annotation @RoleBaseAccessControl
+│   │  │    │  └── rbac                      # (NEW) Add annotation @RoleBaseAccessControl
 │   │  │    │
 │   │  │    ├── components                           
-│   │  │    │  └── rbac                      # (NEW) Thêm một số component hỗ trợ cấu hình và validation RBAC
+│   │  │    │  └── rbac                      # (NEW) Add some component support config and validate RBAC
 │   │  │    │
 │   │  │    ├── events_handle                           
-│   │  │    │  └── rbac                      # (NEW) Thêm các runtime event triger để xử lý các tác vụ cần thiết để khởi tạo RBAC  
+│   │  │    │  └── rbac                      # (NEW) Add some runtime event trigers to handle some initial of RBAC  
 │   │  │    │
 │   │  │    ├── exceptions                           
-│   │  │    │  └── rbac                      # (NEW) Thêm một số custom exception của RBAC       
-│   │  │    │
-│   │  │    ├── swagger    
-│   │  │    │  ├── rbac                      # (NEW) Thêm các swagger model cho module [rbac]                  
-│   │  │    │  └── demo_rbac                 # (NEW)(CÓ THỂ XÓA) Thêm các swagger model cho module [demo_rbac]
+│   │  │    │  └── rbac                      # (NEW) Add some custom exceptions of RBAC       
 │   │  │    │
 │   │  │    └── modules  
-│   │  │        └── rbac                     # (NEW) Core module của RBAC               
+│   │  │        └── rbac                     # (NEW) Core module of RBAC               
 │   │  │        │   ├── controllers                                
 │   │  │        │   ├── repositories                
 │   │  │        │   ├── services                   
@@ -690,7 +633,7 @@ RBAC trong project này được phát triển dựa trên module `Spring Securi
 │   │  │        │      ├── dtos                     
 │   │  │        │      └── entities   
 │   │  │        │              
-│   │  │        └── demo_rbac                # (CÓ THỂ XÓA) Code demo tính năng của RBAC            
+│   │  │        └── demo_rbac                # (REMOVABLE) Module demo of RBAC            
 │   │  │           ├── controllers                                
 │   │  │           ├── repositories                
 │   │  │           ├── services                   
@@ -699,142 +642,98 @@ RBAC trong project này được phát triển dựa trên module `Spring Securi
 │   │  │              └── entities                
 │   │  │                                        
 │   │  └── resources/  
-│   │     ├── rbac/                         # (MODIFIED) Thêm các additional config file cho RBAC                         
-│   │     └── application.properties        # (MODIFIED) Thêm config cho RBAC
+│   │     ├── rbac/                         # (MODIFIED) Add some configuration config files to RBAC                         
+│   │     └── application.properties        # (MODIFIED) Add config of RBAC
 │   . 
 .   .  
 ````
 
-###### 3. Các thành phần có thể xóa  
-- Xem tại cấu trúc thư mục  
+###### 5. Gradle dependency  
+- None
 
-###### 4. Gradle dependency  
-- Không
-
-###### 5. Configuration  
-Cấu hình RBAC được đặt trong `application.properties`  
-Xem thêm mô tả chi tiết tại mục `7. Dành cho người phát triển`  
+###### 6. Configuration  
+The configuration of RBAC is in `application.properties` file
 
 ````
 ...
 # [rbac] Role-base access control configuration
-application.rbac.refresh=false    # flag để RBAC xác định được có tiến hành update lại dữ liệu hay không
-application.rbac.http-methods.path=rbac/http-methods.json    # đường dẫn đến file config http-methods.json của RBAC
-application.rbac.rbac-started-roles-users.path=rbac/rbac-started-roles-users.json    # đường dẫn đến file config rbac-started-roles-users.json  của RBAC
-application.rbac.rbac-modules-description.path=rbac/rbac-modules-description.json    # đường dẫn đến file config rbac-modules-description.json  của RBAC
+application.rbac.refresh=false    # enable RBAC re-scan and update new added api (set = true when there are any  added/updated/deleted apis)
+application.rbac.http-methods.path=rbac/http-methods.json    # path to config file http-methods.json
+application.rbac.rbac-started-roles-users.path=rbac/rbac-started-roles-users.json    # path to config file rbac-started-roles-users.json
+application.rbac.rbac-modules-description.path=rbac/rbac-modules-description.json    # path to config file rbac-modules-description.json
 ...
 ````
 
-###### 6. Tính năng
-**I. Khởi tạo RBAC**
-Scan và persist các api yêu cầu RBAC
-    Khi mối khi service được start, RBAC sẽ tiến hành scan toàn bộ các package `controllers` của tất cả các module để tìm 
-    kiếm các api yêu cầu RBAC và sau đó persist vào database
+###### 7. Features
+**I. Initial RBAC**
+Scan and save all apis which is required RBAC
+    When service started, RBAC will scan all project package `controllers` of each module find every apis that required RBAC, then save to database
     
-    `LƯU Ý`:
-    - Một `@Controller` hay `@RestController` class nếu đặt ngoài package `controllers` của module sẽ *không* được RBAC 
-    scan và persist. Do đó cần lưu ý đặt các Controller class đúng vị trí  
+    `NOTE`:
+    - All `@Controller` or `@RestController` class if placed outside package `controllers` of module WILL BE IGNORED BY RBAC. So please make sure to place your Controller class to correct package 
   
 **II. RBAC core module**  
-Truy cập `swagger-ui` để xem mô tả chi tiết
-1. Mô hình
-  RBAC trong project này được tổ chức thành mô hình: User - Role - Api  
-    
-  Trong đó:
-  - Một user chỉ có một role (1 - 1)
-  - Một role có thể truy cập được nhiều api (1 - n)
-  - Một api có thể được truy cập bởi nhiều role (1 - n)  
+Visit swagger ui for api detail and try out
+1. RBAC Structure
+  RBAC was build base on the relationship between 3 entity: User - Role - Api  
+  - 1 user only has 1 role (1 - 1)
+  - 1 role can contains multiple allowed api (1 - n)
+  - 1 api can be allowed by multiple role (1 - n)  
 
   Database schema  
   
   ![](readme_assets/RBAC-schema.png)
   
-  Trong RBAC, tồn tại một loại Role đặc biệt được gọi là ROOT. ROOT được phép truy cập mọi Api của hệ thống mà không cần 
-  phân quyền, và phân quyền cũng không có tác dụng với ROOT
+  In this project RBAC, there is a special Role, called `ROOT`. The `ROOT` Role will get access to all available apis without any limitation, 
+  and you CAN NOT assign permissions to `ROOT` Role
   
-2. Liệt kê danh sách các api cần thực hiện RBAC của hệ thống
-    Api yêu cầu token của người dùng bất kì và trả về danh sách tất cả các api yêu cầu RBAC
+2. List all RBAC api
+    Api required RBAC Authorization by access token
     ````
         PATH: /api/auth/rbac/apis
         METHOD: GET
         REQUEST HEADER: 
-            - Authorization: <loại của token> <access token của người dùng bất kỳ>
+            - Authorization: <token type> <user access token>
     ````  
     
-3. Liệt kê danh sách các api được phép truy cập của một quyền
-    Api yêu cầu token của người dùng có quyền được phép truy cập, mặc định chỉ user có quyền ROOT mới được phép truy cập
+3. List all allowed apis of assigned to one role
+    Api required RBAC Authorization by access token. By default, only `ROOT` user has access right
     ````
-        PATH: /api/auth/rbac/roles/{id của quyền}/apis
+        PATH: /api/auth/rbac/roles/{role id}/apis
         METHOD: GET
         REQUEST HEADER: 
-            - Authorization: <loại của token> <access token của người dùng có quyền hạn>
+            - Authorization: <token type> <user access token>
     ````
     
-    Response khi user không có quyền truy cập
+    The response when user has no access permission
     ````
     HTTP STATUS: 401 Unauthorized
     RESPONSE BODY
     {
         "code": 4017,
-        "msg": "quyền hiện tại không được phép truy cập",
+        "msg": "access denied",
         "data": null
     }
     ````
 
-4. Phân/thu hồi danh sách api được phép truy cập cho một quyền (Phân/thu hồi quyền truy cập)
-    Api yêu cầu token của người dùng có quyền được phép truy cập, mặc định chỉ user có quyền ROOT mới được phép truy cập  
-    Sau khi phân/thu hồi quyền thành công, user có quyền đó có thể/không thể truy cập các api được phân/thu hồi mà không cần 
-    tiến hành xác minh lại người dùng
+4. Assign/Revoke assigned apis of one role (Assign/Revoke access right)
+    Api required RBAC Authorization by access token. By default, only `ROOT` user has access right
+    There is no need to re-authentication after assign/revoke api of role
     
      ````
-        PATH: /api/auth/rbac/roles/{id của quyền}/apis
+        PATH: /api/auth/rbac/roles/{role id}/apis
         METHOD: PUT
         REQUEST HEADER: 
-            - Authorization: <loại của token> <access token của người dùng có quyền hạn>
+            - Authorization: <token type> <user access token>
         REQUEST BODY:
         [id của của api được phép truy cập]
      ````
 
-###### 7. Dành cho người phát triển  
-**I. RoleType để làm gì?** 
-`RoleType` là một enum class định nghĩa các giá trị dùng để nhận dạng và đặc trưng cho một nhóm các quyền có cùng một 
-số lượng quyền truy cập giống nhau vao thời điểm khoải tạo, RBAC dựa vào RoleType để có thể tự động cập nhập các api được 
-phép truy cập mặc định cho các quyên đó
+###### 8. For developer 
 
-Ex: 
-Nhóm quyền RoleType `ADMIN` mặc định được phép truy cập vào api `/foo` và `/bar`. Role `admin1` và `admin2` đều thuộc 
-nhóm `ADMIN`. Do đó khi RBAC được khởi tạo sẽ tự động add thêm 2 api `/foo` và `/bar` vào danh sách các api được phép 
-truy cập của hai role `admin1` và `admin2`
-
-**II. Flag `application.rbac.refresh` trong `application.properties` để làm gì?** 
-`scan và persist các api yêu cầu RBAC` là một quá trình yêu cầu dịch vụ phải tiến hành rà soát toàn bộ các module và 
-thực hiện các database operation để persist dữ liệu. Do đó đối với project lớn, database thì được remote, với với độ trễ cao 
-thì việc scan và persist các api RBAC sẽ trở thành vấn đề cảm trở đến quá trình phát triển  
-
-Bên cạnh đó, công việc `scan và persist` bên trên cũng không đồi hỏi phải thực hiện thường xuyên mà hầu hết chỉ cần thực 
-hiện mỗi khi lập trình viên định nghĩa thêm/sửa/xóa một route mapping trong `@Controller` hay thay đổi cấu trúc module  
-dẫn đến sự thay đổi các api route  
- 
-Do đó, Flag `application.rbac.refresh` được tạo ra để giải quyết vấn đề trên. RBAC sẽ dựa vào giá trị của flag này để 
-xác định xem có nên tiến hành `scan và persist` lại các api hay không
-
-Mặc định giá trị của `application.rbac.refresh` là `false`
-
-Cách sử dụng: Thêm `application.rbac.refresh` như một program environment variable khi start ứng dụng Spring Boot
-Ex:
-```bash
-$ java -jar build/libs/spring-base-project.jar --application.rbac.refresh=true
-hoặc
-$ gradle bootRun build/libs/spring-base-project.jar --application.rbac.refresh=true
-```
-
-Hoặc có thể cấu hình trên IDE Intelliji như sau
-
-![](readme_assets/inteliji-run-rbac-config.png)
-
-**III. Các file cấu hình trong `resources/rbac` để làm gì?** 
-Các file cấu hình đặt trong `rousources/rbac` là các file cấu hình khởi tạo dữ liệu cho RBAC, bao gồm
-- `http-methods.json` đây là file cấu hình mức độ ưu tiên của các Http method, dùng để sorting  
+**I. Configuration file in `resources/rbac`** 
+Every files in `rousources/rbac` are both initial configuration files for RBAC, which includes:
+- `http-methods.json` this config file will provide HTTP METHOD default ordering by priority (ASC) 
 
 ```json
 {
@@ -849,24 +748,24 @@ Các file cấu hình đặt trong `rousources/rbac` là các file cấu hình k
 }
 ```
 
-- `rbac-modules-description.json` đây là file cấu hình các thông tin bổ xung về các module, bao gồm mô tả (description) 
-và mức độ ưu tiên (priority)  
+- `rbac-modules-description.json` this config file will provide module metadata, include modulle description 
+and priority (for ordering)  
 
 ```json
 {
   "rbac": {
-    "description": "Điều khiển truy cập trên cơ sở vai trò",
+    "description": "Role-base Access Control",
     "priority": 1
   },
   "demo_rbac": {
-    "description": "Demo tính năng điều khiển truy cập trên cơ sở vai trò",
+    "description": "Demo features of Role-base Access Control",
     "priority": 2
   }
 }
 ```
     
-- `rbac-started-roles-users.json` đây là file cấu hình các quyền (Role) và người dùng (User) khởi tạo bna đầu của RBAC, 
-bao gồm 1 quyền thuộc nhóm `ROOT`, 1 quyên thuộc nhóm `ADMIN` và một user có quyền `ROOT`  
+- `rbac-started-roles-users.json` this config file will provide all started Role and User of RBAC, 
+include 1 role of group `ROOT`, 1 role of group `ADMIN` and 1 user with role = `ROOT`  
 
 ```json
 {
@@ -887,31 +786,26 @@ bao gồm 1 quyền thuộc nhóm `ROOT`, 1 quyên thuộc nhóm `ADMIN` và m�
 }
 ```
 
-**IV. Sử dụng annotation `@RoleBaseAccessControl`**  
+**II. Using `@RoleBaseAccessControl` annotation**  
 
-Annotation được kế thừa từ annotation `@AuthorizationRequired` nên nó sẽ **bao gồm cả tính năng** của `@AuthorizationRequired`
+This annotation was extended from `@AuthorizationRequired` annotation. Therefore, it will **include all available features** of `@AuthorizationRequired`
 
-`@AuthorizationRequired` là mức low level so với `@RoleBaseAccessControl`
-
-Annotation này được sử dụng để dánh dấu các api hay một nhóm api nào đó là `truy cập yêu cầu RBAC`
+This annotation was used to mark one api / api group as `access is required user RBAC authorization`
 ````java
 
-@RoleBaseAccessControl    // <- annotate vào controller để đánh dấu tất cả các api bên trong controller này 
-@RestController           //    đêu yêu cầu RBAC
+@RoleBaseAccessControl    // <- annotate to controller class to apply to all api inside this controller 
+@RestController           //    which required user RBAC authorization for access
 @RequestMapping("/api/auth/rbac")
 @Api(description = "Quản lý quyền truy cập")
 public class ApiController extends BaseRESTController {
     
-                             //     annotate vào method để đánh dấu api này yêu cầu RBAC, 
-                             //     trường hợp nếu đã annotate ở controller rồi thì không cần thiết phải 
-    @RoleBaseAccessControl   // <-  annoate ở method
+    @RoleBaseAccessControl   // <-  or you can annotate to every single api
     @GetMapping("/foo")
     public BaseResponse getFoo() {
         return new BaseResponse(ResponseValue.SUCCESS);
     }
     
-    // Có thể định nghĩa thêm các RoleType mặc định được phép truy cập (ngoài ROOT), 
-    // nếu để trống khi có nghĩa là api này mặc định chỉ có ROOT được phép truy cập
+    // You can declare default access for role groups (without ROOT), 
     // ↓ 
     @RoleBaseAccessControl(defaultAccess = {RoleType.ADMIN}) 
     @GetMapping("/bar")
@@ -921,17 +815,15 @@ public class ApiController extends BaseRESTController {
 }
 ````
 
-**II. Gọi các api yêu cầu xác thực trên swagger-ui**
+**III. Try out RBAC api on swagger-ui**
 
-Đối với các api yêu cầu RBAC trên swagger cũng có cảnh báo giống như các api `Truy cập yêu cầu xác thưc người dùng`
+All RBAC required api on swagger can by try out with the same approach as `How to verify user authorization on swagger-ui`
 
-###### 8. Uninstall  
-- Xóa các nhóm được comment `[rbac]` trong 02 file `application.properties` và `build.gradle`
-- Xóa 09 package:
+###### 8. Hot to remove  
+- Remove all groups which have comment prefix `[rbac]` in `application.properties` and `build.gradle` file
+- Remove all packages:
   + `modules/rbac`
   + `modules/demo_rbac`
-  + `swagger/rbac`
-  + `swagger/demo_rbac`
   + `annotations/rbac`
   + `components/rbac`
   + `exceptions/rbac`
@@ -939,8 +831,7 @@ public class ApiController extends BaseRESTController {
   + `resources/rbac`
 
 ##### V. Firebase
-[Firebase](https://firebase.google.com) Firebase là một dịch vụ hệ thống backend được Google cung cấp sẵn cho nền tảng 
-Mobile. Firebase giúp lập trình viên rút ngắn thời gian phát triển, triển khai và thời gian mở rộng quy mô của ứng dụng.
+[Firebase](https://firebase.google.com) `Firebase is a platform developed by Google for creating mobile and web applications`
 
 ![](readme_assets/firebase-logo.png)
 
@@ -954,14 +845,11 @@ Mobile. Firebase giúp lập trình viên rút ngắn thời gian phát triển,
 ````
 .   .  .    .
 │   │  │    ├── configs                           
-│   │  │    │  └── firebase                  # (NEW) Thêm firebase connection config    
-│   │  │    │
-│   │  │    ├── swagger    
-│   │  │    │  ├── demo_firebase             # (NEW)(CÓ THỂ XÓA) Thêm các swagger model cho module [demo_firebase]
+│   │  │    │  └── firebase                  # (NEW) Add firebase connection config    
 │   │  │    │
 │   │  │    └── modules  
-│   │  │        └── firebase                 # (NEW) Module core chứa các service hỗ trợ tương tác với firebase
-│   │  │        └── demo_firebase            # (NEW)(CÓ THỂ XÓA) Thêm module demo upload file lên firebase storage            
+│   │  │        └── firebase                 # (NEW) Module core include all interaction service with firebase
+│   │  │        └── demo_firebase            # (NEW)(REMOVABLE) Add module demo upload file to firebase storage            
 │   │  │            ├── controllers                                
 │   │  │            ├── repositories                
 │   │  │            ├── services                   
@@ -970,18 +858,15 @@ Mobile. Firebase giúp lập trình viên rút ngắn thời gian phát triển,
 │   │  │               └── entities                       
 │   │  │                                        
 │   │  └── resources/                          
-│   │     └── application.properties        # (MODIFIED) Thêm config firebase
+│   │     └── application.properties        # (MODIFIED) Add firebase config
 │   . 
 .    
 │                                                                     
-├── build.gradle                            # (MODIFIED) Thêm dependency
+├── build.gradle                            # (MODIFIED) Add firebase dependencies
 .
 ````
 
-###### 3. Các thành phần có thể xóa  
-- Xem tại cấu trúc thư mục  
-
-###### 4. Gradle dependency  
+###### 2. Gradle dependency  
  ````
  ...
  dependencies {
@@ -994,43 +879,42 @@ Mobile. Firebase giúp lập trình viên rút ngắn thời gian phát triển,
  }
  ````
 
-###### 5. Configuration  
-Cấu hình firebase được đặt trong `application.properties`  
+###### 3. Configuration  
+All firebase configuration is in `application.properties` file
 ````
 ...
 # [firebase] Firebase admin configuration
-application.firebase.google-services.path=base/google-services.json   # đường đẫn đến file config google-services.json
-application.firebase.fcm.legacy-server-key=AIzaSyDiJ9DLhe-BA_2W0mQElnqELlYl89wVbz0   # legancy server key của firebase project
-application.firebase.fcm.api=https://fcm.googleapis.com/fcm/send   # api send push notification của firebase
-application.firebase.database.url=https://base-firebase-project-d8945.firebaseio.com   # database url của firebase project
-application.firebase.storage.bucket=base-firebase-project-d8945.appspot.com   # storage bucket url của firebase project
-application.firebase.storage.api=http://storage.googleapis.com   # api google storage
+application.firebase.google-services.path=base/google-services.json   # path to config file google-services.json
+application.firebase.fcm.legacy-server-key=AIzaSyDiJ9DLhe-BA_2W0mQElnqELlYl89wVbz0   # legacy server key of firebase project
+application.firebase.fcm.api=https://fcm.googleapis.com/fcm/send   # push notification api of firebase
+application.firebase.database.url=https://base-firebase-project-d8945.firebaseio.com   # database url of firebase project
+application.firebase.storage.bucket=base-firebase-project-d8945.appspot.com   # storage bucket url of firebase project
+application.firebase.storage.api=http://storage.googleapis.com   # google storage api
 ...
 ````
 
-![Lấy firebase legacy server key](readme_assets/firebase-console-legacy-server-key.png)
+![How to get firebase legacy server key](readme_assets/firebase-console-legacy-server-key.png)
 
-![Lấy firebase config file và database url](readme_assets/firebase-console-service-accounts.png)
+![How to get firebase config file and database url](readme_assets/firebase-console-service-accounts.png)
 
-![Lấy firebase storage bucket](readme_assets/firebase-console-storage-bucket.png)
+![How to get firebase storage bucket](readme_assets/firebase-console-storage-bucket.png)
 
-###### 6. Tính năng
+###### 6. Features
 1. Firebase authentication
 2. Firebase storage
 3. Firebase real-time database / Firestore
 4. Firebase cloud messaging  
 
-###### 7. Demo firebase  
-Truy cập swagger-ui, module `demo_firebase`  
+###### 7. Demo firebase 
+Visit swagger ui page, section `demo_firebase`  
 
-###### 8. Uninstall  
-- Xóa các nhóm được comment `[firebase]` trong 02 file `application.properties` và `build.gradle`
-- Xóa `google-service.json`
-- Xóa 04 package:
+###### 8. How to remove  
+- Remove all groups which have comment prefix `[firebase]` in `application.properties` and `build.gradle` file
+- Remove `google-service.json`
+- Remove all packages:
   + `configs/firebase`
   + `modules/firebase`
   + `modules/demo_firebase`
-  + `swagger/demo_firebase`
   
 
 
