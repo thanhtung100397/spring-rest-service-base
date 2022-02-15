@@ -112,7 +112,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 │   │     ├── prod/                               # Contains all project static resources for Production env
 │   │     ├── application.properties              # Default project static configuration file
 │   │     ├── application-dev.properties          # Developement env static configuration file (override default config file)
-│   │     ├── application-prod.properties         # Production env static configuration file (override file config mặc định)
+│   │     ├── application-prod.properties         # Production env static configuration file (override default config file)
 │   │     └── swagger-info.json                   # Static displayed info on swagger ui page configuration
 │   │
 │   └── test/                                                               
@@ -251,8 +251,8 @@ spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.Im
 spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL55Dialect
 spring.datasource.url=jdbc:mysql://(datasource host):(datasource port)/(database name)?useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&createDatabaseIfNotExist=true
-spring.datasource.username=(datasource username)     # username truy cập datasource
-spring.datasource.password=(datasource password)     # password truy cập datasource
+spring.datasource.username=(datasource username)     # username access datasource
+spring.datasource.password=(datasource password)     # password access datasource
 
 # [jpa] JPA query logging configuration
 spring.jpa.show-sql=(true|false)     # Enable console log for native query which was the transformation result of JPAQL every query execution
@@ -835,13 +835,13 @@ All RBAC required api on swagger can by try out with the same approach as `How t
 
 ![](readme_assets/firebase-logo.png)
 
-###### 1. Thành phần   
+###### 1. Components   
 ````
  - Started Project
  - Firebase admin
 ```` 
 
-###### 2. Cấu trúc thư mục  
+###### 2. Package structure  
 ````
 .   .  .    .
 │   │  │    ├── configs                           
