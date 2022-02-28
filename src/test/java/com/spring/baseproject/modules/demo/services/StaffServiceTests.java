@@ -1,26 +1,29 @@
 package com.spring.baseproject.modules.demo.services;
 
 import com.spring.baseproject.BaseMockitoJUnitTests;
-import com.spring.baseproject.base.models.BaseResponse;
-import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.demo.models.dtos.StaffDto;
 import com.spring.baseproject.modules.demo.models.entities.Staff;
 import com.spring.baseproject.modules.demo.repositories.StaffRepository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.springframework.http.HttpStatus;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static com.spring.baseproject.utils.AssertThrowable.*;
 
+@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class StaffServiceTests extends BaseMockitoJUnitTests {
     @InjectMocks
     private StaffService staffService;

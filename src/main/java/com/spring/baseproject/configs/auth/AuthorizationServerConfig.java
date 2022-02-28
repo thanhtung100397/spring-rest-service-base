@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.provider.token.*;
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
+
     @Value("${application.oauth2.authorization-server.trusted-client.web.id}")
     private String trustedWebClientID;
     @Value("${application.oauth2.authorization-server.trusted-client.web.secret}")
@@ -39,20 +40,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     private DefaultTokenServices tokenServices;
     @Autowired
     private WebResponseExceptionTranslator authExceptionTranslator;
-
-    @Bean
-    public WebResponseExceptionTranslator authExceptionTranslator() {
-        return e -> {
-            if (e instanceof OAuth2Exception) {
-                CustomOAuth2Exception customOAuth2Exception = new CustomOAuth2Exception((OAuth2Exception) e);
-                return ResponseEntity
-                        .status(customOAuth2Exception.getResponseValue().httpStatus())
-                        .body(customOAuth2Exception);
-            } else {
-                throw e;
-            }
-        };
-    }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {

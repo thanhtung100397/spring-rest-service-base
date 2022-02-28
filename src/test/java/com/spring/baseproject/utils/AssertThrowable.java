@@ -1,12 +1,12 @@
 package com.spring.baseproject.utils;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class AssertThrowable {
     public static void assertThrows(Callable callable, OnThrowable onThrowable){
         try {
             callable.call();
-            Assert.fail();
+            fail();
         } catch (Throwable t) {
             if (onThrowable != null) {
                 onThrowable.onThrowable(t);
