@@ -11,9 +11,9 @@
 #WORKDIR /jar/
 #COPY --from=GRADLE_BUILD_IMAGE /app/build/libs/app-0.0.1-SNAPSHOT.jar app.jar
 #ENV DB_URL=127.0.0.1:3306 \
-#    DB_NAME=css_database \
+#    DB_NAME=demo_database \
 #    DB_USERNAME=root \
-#    DB_PASSWORD=1111 \
+#    DB_PASSWORD=123456 \
 #    DEPLOY_TYPE=prod
 #CMD ["java", \
 #     "-Djava.security.egd=file:/dev/./urandom", \
@@ -31,9 +31,9 @@ VOLUME /tmp
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 ENV DB_URL=127.0.0.1:3306 \
-    DB_NAME=css_database \
+    DB_NAME=demo_database \
     DB_USERNAME=root \
-    DB_PASSWORD=1111 \
+    DB_PASSWORD=123456 \
     DEPLOY_TYPE=dev
 ENTRYPOINT ["java", \
             "-Djava.security.egd=file:/dev/./urandom", \
