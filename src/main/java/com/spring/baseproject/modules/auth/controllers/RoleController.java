@@ -1,5 +1,6 @@
 package com.spring.baseproject.modules.auth.controllers;
 
+import com.spring.baseproject.annotations.auth.AuthorizationRequired;
 import com.spring.baseproject.annotations.swagger.Response;
 import com.spring.baseproject.annotations.swagger.Responses;
 import com.spring.baseproject.base.models.BaseResponseBody;
@@ -55,6 +56,7 @@ public class RoleController {
     @Responses(value = {
             @Response(responseValue = ResponseValue.ROLE_EXISTS)
     })
+    @AuthorizationRequired
     @PostMapping
     public RoleDto createNewRole(@Valid @RequestBody NewRoleDto newRoleDto) throws ResponseException {
         return roleService.createNewRole(newRoleDto);
@@ -64,6 +66,7 @@ public class RoleController {
     @Responses(value = {
             @Response(responseValue = ResponseValue.ROLE_NOT_FOUND)
     })
+    @AuthorizationRequired
     @PutMapping("/{rid}")
     public RoleDto updateRole(@PathVariable("rid") int roleID,
                               @Valid @RequestBody NewRoleDto newRoleDto) throws ResponseException {
@@ -74,6 +77,7 @@ public class RoleController {
     @Responses(value = {
             @Response(responseValue = ResponseValue.SUCCESS, responseBody = BaseResponseBody.class)
     })
+    @AuthorizationRequired
     @DeleteMapping()
     public void deleteRoles(@RequestBody Set<Integer> roleIDs) {
         roleService.deleteRoles(roleIDs);

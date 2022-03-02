@@ -23,9 +23,11 @@ public class BaseResponseBody<T> {
     }
 
     public BaseResponseBody(ResponseValue responseValue, T data) {
-        this.code = responseValue.specialCode();
-        this.msg = responseValue.message();
-        this.data = data;
+        this(responseValue.specialCode(), responseValue.message(), data);
+    }
+
+    public BaseResponseBody(int code, String msg) {
+        this(code, msg, null);
     }
 
     public BaseResponseBody(int code, String msg, T data) {
@@ -36,11 +38,6 @@ public class BaseResponseBody<T> {
         } else {
             this.data = data;
         }
-    }
-
-    public BaseResponseBody(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
     }
 
     public int getCode() {

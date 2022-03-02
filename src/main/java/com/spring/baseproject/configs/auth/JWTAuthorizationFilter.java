@@ -10,7 +10,6 @@ import com.spring.baseproject.modules.auth.models.dtos.CustomUserDetail;
 import com.spring.baseproject.modules.auth.services.IAuthorization;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -20,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-    private IAuthorization authorization;
-    private InMemoryRoutesDictionary inMemoryRoutesDictionary;
+    private final IAuthorization authorization;
+    private final InMemoryRoutesDictionary inMemoryRoutesDictionary;
 
     public JWTAuthorizationFilter(IAuthorization authorization,
                                   InMemoryRoutesDictionary inMemoryRoutesDictionary) {

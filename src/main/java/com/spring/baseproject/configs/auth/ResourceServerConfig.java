@@ -2,18 +2,13 @@ package com.spring.baseproject.configs.auth;
 
 import com.spring.baseproject.annotations.auth.AuthorizationRequired;
 import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
-import com.spring.baseproject.base.models.BaseResponseBody;
 import com.spring.baseproject.components.rbac.InMemoryRoutesDictionary;
 import com.spring.baseproject.constants.ApplicationConstants;
-import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.modules.auth.services.IAuthorization;
-import com.spring.baseproject.utils.base.JacksonObjectMapper;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -46,31 +40,20 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Value("${application.modules-package.modules}")
     private Set<String> allModules;
 
-    @Autowired
-    private DefaultTokenServices tokenService;
-    @Autowired
-    private TokenStore tokenStore;
-    @Autowired
-    private AuthenticationEntryPoint customAuthenticationEntryPoint;
-    @Autowired
-    private IAuthorization authorization;
-    @Autowired
-    private InMemoryRoutesDictionary inMemoryRoutesDictionary;
+    private final DefaultTokenServices tokenService;
+    private final TokenStore tokenStore;
+    private final IAuthorization authorization;
+    private final InMemoryRoutesDictionary inMemoryRoutesDictionary;
+    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    @Bean
-    public NoAuthorizationRequiredRoutes permitRoutesDictionary() {
-        return new NoAuthorizationRequiredRoutes();
-    }
-
-    @Bean
-    public AuthenticationEntryPoint customAuthenticationEntryPoint() {
-        return (request, response, authException) -> {
-            String responseBodyJson = JacksonObjectMapper.getInstance()
-                    .writeValueAsString(new BaseResponseBody<>(ResponseValue.AUTHENTICATION_REQUIRED, null));
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(ResponseValue.AUTHENTICATION_REQUIRED.httpStatus().value());
-            response.getWriter().write(responseBodyJson);
-        };
+    public ResourceServerConfig(DefaultTokenServices tokenService, TokenStore tokenStore,
+                                IAuthorization authorization, InMemoryRoutesDictionary inMemoryRoutesDictionary,
+                                AuthenticationEntryPoint customAuthenticationEntryPoint) {
+        this.tokenService = tokenService;
+        this.tokenStore = tokenStore;
+        this.authorization = authorization;
+        this.inMemoryRoutesDictionary = inMemoryRoutesDictionary;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Override

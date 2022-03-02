@@ -1,7 +1,6 @@
 package com.spring.baseproject.configs.auth;
 
 import com.spring.baseproject.modules.auth.services.QueryUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,10 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private QueryUserDetailsService queryUserDetailsService;
+    private final PasswordEncoder passwordEncoder;
+    private final QueryUserDetailsService queryUserDetailsService;
+
+    public WebSecurityConfig(PasswordEncoder passwordEncoder,
+                             QueryUserDetailsService queryUserDetailsService) {
+        this.passwordEncoder = passwordEncoder;
+        this.queryUserDetailsService = queryUserDetailsService;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {

@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
 @Configuration
-public class Test {
+public class AuthorizationServerBeans {
     @Bean
     public WebResponseExceptionTranslator authExceptionTranslator() {
         return e -> {

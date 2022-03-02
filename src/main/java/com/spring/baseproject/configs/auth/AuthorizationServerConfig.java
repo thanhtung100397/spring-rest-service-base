@@ -1,14 +1,9 @@
 package com.spring.baseproject.configs.auth;
 
-import com.spring.baseproject.exceptions.auth.CustomOAuth2Exception;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -32,14 +27,20 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Value("${application.oauth2.resource-server.id}")
     private String resourceServerID;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    AuthenticationManager authenticationManager;
-    @Autowired
-    private DefaultTokenServices tokenServices;
-    @Autowired
-    private WebResponseExceptionTranslator authExceptionTranslator;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final DefaultTokenServices tokenServices;
+    private final WebResponseExceptionTranslator authExceptionTranslator;
+
+    public AuthorizationServerConfig(PasswordEncoder passwordEncoder,
+                                     AuthenticationManager authenticationManager,
+                                     DefaultTokenServices tokenServices,
+                                     WebResponseExceptionTranslator authExceptionTranslator) {
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.tokenServices = tokenServices;
+        this.authExceptionTranslator = authExceptionTranslator;
+    }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {

@@ -23,8 +23,11 @@ public class AccessTokenConfig {
     @Value("${application.oauth2.authorization-server.token-signing-key}")
     private String jwtSigningKey;
 
-    @Autowired
-    private QueryUserDetailsService userDetailService;
+    private final QueryUserDetailsService userDetailService;
+
+    public AccessTokenConfig(QueryUserDetailsService userDetailService) {
+        this.userDetailService = userDetailService;
+    }
 
     @Bean
     TokenStore tokenStore(JwtAccessTokenConverter jwtAccessTokenConverter) {
