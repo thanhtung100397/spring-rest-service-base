@@ -6,13 +6,10 @@ import com.spring.baseproject.exceptions.ResponseException;
 import com.spring.baseproject.modules.demo.models.dtos.StaffDto;
 import com.spring.baseproject.modules.demo.models.entities.Staff;
 import com.spring.baseproject.modules.demo.repositories.StaffRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
 
@@ -22,8 +19,6 @@ import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static com.spring.baseproject.utils.AssertThrowable.*;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
 public class StaffServiceTests extends BaseMockitoJUnitTests {
     @InjectMocks
     private StaffService staffService;
@@ -69,6 +64,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testGetStaffs_SUCCESS() {
+        staffs.clear();
         Staff staff1 = new Staff();
         staff1.setId("12345");
         staff1.setFirstName("Foo");
@@ -94,6 +90,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testFindStaff_SUCCESS() throws ResponseException {
+        staffs.clear();
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
@@ -111,7 +108,8 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
     }
 
     @Test
-    public void testFindStaff_STAFF_NOT_FOUND() throws ResponseException {
+    public void testFindStaff_STAFF_NOT_FOUND() {
+        staffs.clear();
         assertThrows(
                 () -> staffService.findStaff("12345"),
                 (throwable) -> {
@@ -123,6 +121,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testCreateNewStaff_SUCCESS() throws ResponseException {
+        staffs.clear();
         StaffDto staffDto = new StaffDto();
         staffDto.setId("12345");
         staffDto.setFirstName("Foo");
@@ -143,6 +142,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testCreateNewStaff_STAFF_ID_EXITS() {
+        staffs.clear();
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
@@ -177,6 +177,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testUpdateStaff_SUCCESS() throws ResponseException {
+        staffs.clear();
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
@@ -203,6 +204,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testUpdateStaff_STAFF_NOT_FOUND() {
+        staffs.clear();
         StaffDto staffDto = new StaffDto();
         staffDto.setId("12345");
         staffDto.setFirstName("Foo");
@@ -223,6 +225,7 @@ public class StaffServiceTests extends BaseMockitoJUnitTests {
 
     @Test
     public void testDeleteStaff_SUCCESS() {
+        staffs.clear();
         Staff staff = new Staff();
         staff.setId("12345");
         staff.setFirstName("Foo");
