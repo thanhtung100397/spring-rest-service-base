@@ -6,6 +6,7 @@ import com.spring.baseproject.base.models.FieldValidationError;
 import com.spring.baseproject.base.models.MessageDto;
 import com.spring.baseproject.constants.ResponseValue;
 import com.spring.baseproject.exceptions.ResponseException;
+import com.spring.baseproject.utils.base.ClassUtils;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -94,17 +95,7 @@ public class GlobalControllerExceptionHandler {
         for (ObjectError objectError : fieldErrors) {
             if (objectError instanceof FieldError) {
                 FieldError fieldError = (FieldError) objectError;
-                String fieldName = fieldError.getField();
-                ConstraintViolationImpl constraintViolation = fieldError.unwrap(ConstraintViolationImpl.class);
-                try {
-                    Field invalidField = constraintViolation.getRootBeanClass().getDeclaredField(fieldError.getField());
-                    JsonProperty jsonProperty = invalidField.getAnnotation(JsonProperty.class);
-                    if (jsonProperty != null) {
-                        fieldName = jsonProperty.value();
-                    }
-                } catch (NoSuchFieldException e) {
-                    continue;
-                }
+                String fieldName = getErrorFieldName(fieldError);
                 String localizedErrorMessage = resolveLocalizedErrorMessage(fieldError);
                 invalidFieldDtos.add(new FieldValidationError(fieldName, localizedErrorMessage));
             } else {
@@ -112,6 +103,35 @@ public class GlobalControllerExceptionHandler {
             }
         }
         return new BaseResponse<>(ResponseValue.INVALID_FIELDS, invalidFieldDtos);
+    }
+
+    private String getErrorFieldName(FieldError fieldError) {
+        String fieldName = fieldError.getField();
+        ConstraintViolationImpl constraintViolation = fieldError.unwrap(ConstraintViolationImpl.class);
+        try {
+            String[] fieldPaths = fieldName.split("\\.");
+            Field invalidField = ClassUtils.getNestedClassField(constraintViolation.getRootBeanClass(), fieldPaths);
+            String alternativeFieldName = getAlternativeFieldName(invalidField);
+            if (alternativeFieldName != null) {
+                fieldPaths[fieldPaths.length - 1] = alternativeFieldName;
+                return String.join(".", fieldPaths);
+            }
+        } catch (NoSuchFieldException ignored) {
+
+        }
+        return fieldName;
+    }
+
+    private String getAlternativeFieldName(Field field) {
+        com.fasterxml.jackson.annotation.JsonProperty jsonProperty1 = field.getAnnotation(com.fasterxml.jackson.annotation.JsonProperty.class);
+        if (jsonProperty1 != null) {
+            return jsonProperty1.value();
+        }
+        org.codehaus.jackson.annotate.JsonProperty jsonProperty2 = field.getAnnotation(org.codehaus.jackson.annotate.JsonProperty.class);
+        if (jsonProperty2 != null) {
+            return jsonProperty2.value();
+        }
+        return null;
     }
 
     private String resolveLocalizedErrorMessage(FieldError fieldError) {
