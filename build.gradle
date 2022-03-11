@@ -67,6 +67,12 @@ dependencies {
     implementation('org.projectlombok:lombok:1.16.18')
     annotationProcessor('org.projectlombok:lombok:1.16.18')
 
+    // Mapstruct
+    implementation('org.mapstruct:mapstruct:1.4.2.Final')
+    compileOnly('org.mapstruct:mapstruct-processor:1.4.2.Final')
+    annotationProcessor('org.mapstruct:mapstruct-processor:1.4.2.Final')
+    testAnnotationProcessor('org.mapstruct:mapstruct-processor:1.4.2.Final')
+
     // Apache POI - .xlsx reader and generator
     //implementation('org.apache.poi:poi-ooxml:3.17')
     //implementation('org.apache.poi:poi:3.17')
