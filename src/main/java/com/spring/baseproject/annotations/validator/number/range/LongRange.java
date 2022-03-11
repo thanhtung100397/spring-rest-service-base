@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = LongRangeValidator.class)
 public @interface LongRange {
-    String message() default "{value of {start} must be less than value of {end}}";
+    String message() default "value of {start} must be less than value of {end}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
