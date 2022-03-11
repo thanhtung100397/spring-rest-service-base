@@ -63,6 +63,10 @@ dependencies {
     implementation ('com.google.firebase:firebase-admin:5.11.0')
     implementation('com.google.guava:guava:20.0')
 
+    // Lombok
+    implementation('org.projectlombok:lombok:1.16.18')
+    annotationProcessor('org.projectlombok:lombok:1.16.18')
+
     // Apache POI - .xlsx reader and generator
     //implementation('org.apache.poi:poi-ooxml:3.17')
     //implementation('org.apache.poi:poi:3.17')
