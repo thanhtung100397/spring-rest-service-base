@@ -1,7 +1,5 @@
 package com.spring.baseproject.events_handle.rbac.apis_build;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.baseproject.annotations.event.EventHandler;
 import com.spring.baseproject.annotations.rbac.RoleBaseAccessControl;
 import com.spring.baseproject.components.rbac.InMemoryRoutesDictionary;
@@ -21,10 +19,11 @@ import com.spring.baseproject.modules.rbac.repositories.ApiMethodRepository;
 import com.spring.baseproject.modules.rbac.repositories.ApiModuleRepository;
 import com.spring.baseproject.modules.rbac.repositories.ApiRepository;
 import com.spring.baseproject.utils.auth.RouteScannerUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -40,30 +39,39 @@ import java.util.*;
 public class RBACApisBuildService implements ApplicationEventHandle {
     private static Logger logger = LoggerFactory.getLogger(RBACApisBuildService.class);
 
-    @Value("${application.rbac.rbac-modules-description.path:rbac/rbac-modules-description.json}")
-    private String rbacModulesFilePath;
-    @Value("${application.modules-package.name:modules}")
-    private String rootModulePackageName;
-    @Value("${application.rbac.refresh:false}")
-    private boolean isActive;
-    @Value("${application.modules-package.modules:false}")
-    private Set<String> allModules;
+    private final String rbacModulesFilePath;
+    private final String rootModulePackageName;
+    private final boolean isActive;
+    private final Set<String> allModules;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-    @Autowired
-    private ApiRepository apiRepository;
-    @Autowired
-    private ApiMethodRepository apiMethodRepository;
-    @Autowired
-    private ApiFunctionRepository apiFunctionRepository;
-    @Autowired
-    private ApiModuleRepository apiModuleRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private final ResourceLoader resourceLoader;
+    private final ApiRepository apiRepository;
+    private final ApiMethodRepository apiMethodRepository;
+    private final ApiFunctionRepository apiFunctionRepository;
+    private final ApiModuleRepository apiModuleRepository;
+    private final RoleRepository roleRepository;
+    private final InMemoryRoutesDictionary inMemoryRoutesDictionary;
 
-    @Autowired
-    private InMemoryRoutesDictionary inMemoryRoutesDictionary;
+    public RBACApisBuildService(@Value("${application.rbac.rbac-modules-description.path:rbac/rbac-modules-description.json}") String rbacModulesFilePath,
+                                @Value("${application.modules-package.name:modules}") String rootModulePackageName,
+                                @Value("${application.rbac.refresh:false}") boolean isActive,
+                                @Value("${application.modules-package.modules:false}") Set<String> allModules,
+                                ResourceLoader resourceLoader, ApiRepository apiRepository,
+                                ApiMethodRepository apiMethodRepository, ApiFunctionRepository apiFunctionRepository,
+                                ApiModuleRepository apiModuleRepository, RoleRepository roleRepository,
+                                InMemoryRoutesDictionary inMemoryRoutesDictionary) {
+        this.rbacModulesFilePath = rbacModulesFilePath;
+        this.rootModulePackageName = rootModulePackageName;
+        this.isActive = isActive;
+        this.allModules = allModules;
+        this.resourceLoader = resourceLoader;
+        this.apiRepository = apiRepository;
+        this.apiMethodRepository = apiMethodRepository;
+        this.apiFunctionRepository = apiFunctionRepository;
+        this.apiModuleRepository = apiModuleRepository;
+        this.roleRepository = roleRepository;
+        this.inMemoryRoutesDictionary = inMemoryRoutesDictionary;
+    }
 
     @Override
     public String startMessage() {
@@ -174,77 +182,78 @@ public class RBACApisBuildService implements ApplicationEventHandle {
             List<Api> finalApis = apis;
             Map<String, ApiMethod> finalApiMethodMap = apiMethodMap;
             RouteScannerUtils.scanRoutes(rootModulePackage + "." + moduleName + ".controllers",
-                    null, null,
-                    (containClass, method) -> containClass.getDeclaredAnnotation(RoleBaseAccessControl.class) != null ||
-                            method.getDeclaredAnnotation(RoleBaseAccessControl.class) != null,
-                    new RouteScannerUtils.RouteFetched() {
-                        ApiFunction apiFunction;
-                        String apiDescription;
-                        Set<Role> accessibleRoles = new HashSet<>();
+                                         null, null,
+                                         (containClass, method) -> containClass.getDeclaredAnnotation(RoleBaseAccessControl.class) != null ||
+                                                                   method.getDeclaredAnnotation(RoleBaseAccessControl.class) != null,
+                                         new RouteScannerUtils.RouteFetched() {
+                                             ApiFunction apiFunction;
+                                             String apiDescription;
+                                             Set<Role> accessibleRoles;
 
-                        @Override
-                        public void onNewContainerClass(Class<?> containerClass) {
-                            if (finalApiFunctionMap != null) {
-                                apiFunction = finalApiFunctionMap.get(containerClass.getSimpleName());
-                                if (apiFunction == null) {
-                                    apiFunction = new ApiFunction();
-                                    apiFunction.setName(containerClass.getSimpleName());
-                                    apiFunction.setApiModule(finalApiModule);
-                                    io.swagger.annotations.Api apiAnnotation = containerClass.getDeclaredAnnotation(io.swagger.annotations.Api.class);
-                                    if (apiAnnotation != null) {
-                                        apiFunction.setDescription(apiAnnotation.description());
-                                    }
-                                }
-                            }
-                        }
+                                             @Override
+                                             public void onNewContainerClass(Class<?> containerClass) {
+                                                 if (finalApiFunctionMap != null) {
+                                                     apiFunction = finalApiFunctionMap.get(containerClass.getSimpleName());
+                                                     if (apiFunction == null) {
+                                                         apiFunction = new ApiFunction();
+                                                         apiFunction.setName(containerClass.getSimpleName());
+                                                         apiFunction.setApiModule(finalApiModule);
+                                                         io.swagger.annotations.Api apiAnnotation = containerClass.getDeclaredAnnotation(io.swagger.annotations.Api.class);
+                                                         if (apiAnnotation != null) {
+                                                             apiFunction.setDescription(apiAnnotation.description());
+                                                         }
+                                                     }
+                                                 }
+                                             }
 
-                        @Override
-                        public void onNewMethod(Method method) {
-                            if (finalMapRoles != null) {
-                                ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
-                                if (apiOperation != null) {
-                                    apiDescription = apiOperation.value();
-                                } else {
-                                    apiDescription = null;
-                                }
-                                RoleBaseAccessControl roleBaseAccessControl = method.getDeclaredAnnotation(RoleBaseAccessControl.class);
-                                RoleType[] accessibleRoleTypes = roleBaseAccessControl.defaultAccess();
-                                accessibleRoles = new HashSet<>();
-                                accessibleRoles.clear();
-                                for (RoleType roleType : accessibleRoleTypes) {
-                                    Set<Role> roles = finalMapRoles.get(roleType);
-                                    if (roles != null) {
-                                        accessibleRoles.addAll(roles);
-                                    }
-                                }
-                            }
-                        }
+                                             @Override
+                                             public void onNewMethod(Method method) {
+                                                 if (finalMapRoles != null) {
+                                                     ApiOperation apiOperation = method.getDeclaredAnnotation(ApiOperation.class);
+                                                     if (apiOperation != null) {
+                                                         apiDescription = apiOperation.value();
+                                                     } else {
+                                                         apiDescription = null;
+                                                     }
+                                                     RoleBaseAccessControl roleBaseAccessControl = method.getDeclaredAnnotation(RoleBaseAccessControl.class);
+                                                     if (roleBaseAccessControl != null) {
+                                                         RoleType[] accessibleRoleTypes = roleBaseAccessControl.defaultAccess();
+                                                         accessibleRoles = new HashSet<>();
+                                                         for (RoleType roleType : accessibleRoleTypes) {
+                                                             Set<Role> roles = finalMapRoles.get(roleType);
+                                                             if (roles != null) {
+                                                                 accessibleRoles.addAll(roles);
+                                                             }
+                                                         }
+                                                     }
+                                                 }
+                                             }
 
-                        @Override
-                        public void onNewRouteFetched(RequestMethod method, String route) {
-                            String fullPath = method.name() + " " + route;
-                            inMemoryRoutesDictionary.addRoute(route);
-                            if (finalApiMap != null) {
-                                Api api = finalApiMap.get(fullPath);
-                                if (api == null) {
-                                    api = new Api(finalApiMethodMap.get(method.name()), route);
-                                    finalApis.add(api);
-                                    if (logs != null) {
-                                        logs[0]++;
-                                    }
-                                } else {
-                                    finalApiMap.remove(fullPath);
-                                }
-                                api.setApiFunction(apiFunction);
-                                api.setDescription(apiDescription);
-                                api.setRoles(accessibleRoles);
-                                savedApis.add(api);
-                                if (logs != null) {
-                                    logs[1]++;
-                                }
-                            }
-                        }
-                    }, true);
+                                             @Override
+                                             public void onNewRouteFetched(RequestMethod method, String route) {
+                                                 String fullPath = method.name() + " " + route;
+                                                 inMemoryRoutesDictionary.addRoute(route);
+                                                 if (finalApiMap != null) {
+                                                     Api api = finalApiMap.get(fullPath);
+                                                     if (api == null) {
+                                                         api = new Api(finalApiMethodMap.get(method.name()), route);
+                                                         finalApis.add(api);
+                                                         if (logs != null) {
+                                                             logs[0]++;
+                                                         }
+                                                     } else {
+                                                         finalApiMap.remove(fullPath);
+                                                     }
+                                                     api.setApiFunction(apiFunction);
+                                                     api.setDescription(apiDescription);
+                                                     api.setRoles(accessibleRoles);
+                                                     savedApis.add(api);
+                                                     if (logs != null) {
+                                                         logs[1]++;
+                                                     }
+                                                 }
+                                             }
+                                         }, true);
             if (logs != null) {
                 totalNewApi += logs[0];
                 logger.info("Module [" + moduleName + "] scanned, found " + logs[0] + " new api(s), total " + logs[1] + " api(s)");
