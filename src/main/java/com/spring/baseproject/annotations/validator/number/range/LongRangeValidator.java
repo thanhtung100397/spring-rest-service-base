@@ -7,11 +7,13 @@ import java.lang.reflect.Field;
 public class LongRangeValidator implements ConstraintValidator<LongRange, Object> {
     private String end;
     private String start;
+    private boolean equalable;
 
     @Override
     public void initialize(LongRange constraintAnnotation) {
         this.end = constraintAnnotation.end();
         this.start = constraintAnnotation.start();
+        this.equalable = constraintAnnotation.equalable();
     }
 
     @Override
@@ -31,7 +33,7 @@ public class LongRangeValidator implements ConstraintValidator<LongRange, Object
                 greaterField.setAccessible(false);
                 lessField.setAccessible(false);
 
-                return greaterValue > lessValue;
+                return equalable? greaterValue >= lessValue : greaterValue > lessValue;
             } catch (NoSuchFieldException e) {
                 if (inputClass.getSuperclass() == null) {
                     return false;

@@ -7,11 +7,13 @@ import java.lang.reflect.Field;
 public class IntegerRangeValidator implements ConstraintValidator<IntegerRange, Object> {
     private String end;
     private String start;
+    private boolean equalable;
 
     @Override
     public void initialize(IntegerRange constraintAnnotation) {
         this.end = constraintAnnotation.end();
         this.start = constraintAnnotation.start();
+        this.equalable = constraintAnnotation.equalable();
     }
 
     @Override
@@ -29,7 +31,7 @@ public class IntegerRangeValidator implements ConstraintValidator<IntegerRange, 
             greaterField.setAccessible(false);
             lessField.setAccessible(false);
 
-            return greaterValue > lessValue;
+            return equalable? greaterValue >= lessValue : greaterValue > lessValue;
         } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
             return false;
         }

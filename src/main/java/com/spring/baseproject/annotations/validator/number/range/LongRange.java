@@ -17,4 +17,5 @@ public @interface LongRange {
 
     String start();
     String end();
+    boolean equalable() default false;
 }

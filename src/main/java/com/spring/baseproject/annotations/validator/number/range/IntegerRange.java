@@ -17,4 +17,5 @@ public @interface IntegerRange {
 
     String start();
     String end();
+    boolean equalable() default false;
 }
