@@ -186,7 +186,7 @@ class FooController extends BaseRESTController {
 }
 ````
 
-`LƯU Ý`:
+`NOTED`:
 - IN THIS PROJECT, Swagger was modified to ONLY SCAN ALL @RestController inside project every package `modules/<Module name>/controllers`, 
 therefore you must be aware to put all @RestController to correct package position (if not, you will not see your api displayed on swagger ui page)
 - Each `ResponseValue` with the same `specialCode` will replace each other when displayed on swagger ui, so you should not  
