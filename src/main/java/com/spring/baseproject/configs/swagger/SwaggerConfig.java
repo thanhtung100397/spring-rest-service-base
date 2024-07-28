@@ -21,6 +21,10 @@ public class SwaggerConfig {
     private Set<String> swaggerExcludedModules;
     @Value("${application.modules-package.modules}")
     private Set<String> allModules;
+    @Value("${application.swagger.host:#{null}}")
+    private String host;
+    @Value("${application.swagger.protocols:#{null}}")
+    private Set<String> protocols;
 
     private final BeanFactory beanFactory;
     private final SwaggerApiGroupBuilder swaggerApiGroupBuilder;
@@ -36,7 +40,12 @@ public class SwaggerConfig {
         String modulesPackageName = ApplicationConstants.BASE_PACKAGE_NAME + "." + rootModulePackageName;
         for (String moduleName : allModules) {
             if (!swaggerExcludedModules.contains(moduleName)) {
-                Docket moduleApiGroup = swaggerApiGroupBuilder.newSwaggerApiGroup(moduleName, modulesPackageName + "." + moduleName + ".controllers");
+                Docket moduleApiGroup = swaggerApiGroupBuilder.newSwaggerApiGroup(
+                        moduleName,
+                        modulesPackageName + "." + moduleName + ".controllers",
+                        host,
+                        protocols
+                );
                 configurableBeanFactory.registerSingleton("swaggerApiGroup" + moduleName, moduleApiGroup);
             }
         }
