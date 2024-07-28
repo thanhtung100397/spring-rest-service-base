@@ -38,8 +38,9 @@ public class SwaggerAuthApiGroupBuilder extends SwaggerApiGroupBuilder {
         this.apiFilter = new AuthApiFilter();
     }
 
-    public Docket newSwaggerApiGroup(String groupName, String packageName) {
-        return super.newSwaggerApiGroup(groupName, packageName)
+    public Docket newSwaggerApiGroup(String groupName, String packageName,
+                                     String host, Set<String> protolcols) {
+        return super.newSwaggerApiGroup(groupName, packageName, host, protolcols)
                 .securitySchemes(Collections.singletonList(apiKey()))
                 .securityContexts(Collections.singletonList(securityContext(groupName)));
     }
