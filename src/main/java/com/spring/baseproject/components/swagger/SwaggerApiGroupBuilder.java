@@ -51,23 +51,35 @@ public class SwaggerApiGroupBuilder {
                 ResponseValue.UNEXPECTED_ERROR_OCCURRED);
     }
 
-    public Docket newSwaggerApiGroup(String groupName, String packageName) {
+    public Docket newSwaggerApiGroup(String groupName, String packageName,
+                                     String host, Set<String> protolcols) {
         String moduleTitle = groupName.toUpperCase().replace("_", " ");
         if (groupName.equals("internal")) {
             groupName = "~" + groupName;
         }
-        return new Docket(DocumentationType.SWAGGER_2)
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .groupName(groupName)
                 .apiInfo(newApiInfo(moduleTitle, null, null, null, null, null))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage(packageName))
                 .paths(PathSelectors.any())
-                .build()
-                .useDefaultResponseMessages(false)
-                .globalResponseMessage(RequestMethod.GET, globalResponseMessages_GET())
-                .globalResponseMessage(RequestMethod.POST, globalResponseMessages_POST())
-                .globalResponseMessage(RequestMethod.PUT, globalResponseMessages_PUT())
-                .globalResponseMessage(RequestMethod.DELETE, globalResponseMessages_DELETE());
+                .build();
+
+        docket.useDefaultResponseMessages(false)
+              .globalResponseMessage(RequestMethod.GET, globalResponseMessages_GET())
+              .globalResponseMessage(RequestMethod.POST, globalResponseMessages_POST())
+              .globalResponseMessage(RequestMethod.PUT, globalResponseMessages_PUT())
+              .globalResponseMessage(RequestMethod.DELETE, globalResponseMessages_DELETE());
+
+        if (host != null && !host.isEmpty()) {
+            docket.host(host);
+        }
+
+        if (protolcols != null && !protolcols.isEmpty()) {
+            docket.protocols(Sets.newHashSet(protolcols));
+        }
+
+        return docket;
     }
 
     public ApiInfo newApiInfo(String title, String description,
